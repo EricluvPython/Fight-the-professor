@@ -8,7 +8,7 @@ import pygame
 from chatComm import *
 import tkinter.messagebox
 from pygameWidgets import *
-from GameEngine import Game
+from GameEngine import *
 
 class loginGUI:
     def __init__(self,parent):
@@ -95,14 +95,17 @@ class mainGUI:
     
     # select 2 people to play with
     def startGame(self):
-        selected = self.friendsList.get(self.friendsList.curselection())
-        if len(selected) == 3:
+        selected = []
+        for i in self.friendsList.curselection():
+            selected.append(self.friendsList.get(i))
+        if len(selected) == 2:
             player1 = self.username
             player2 = selected[0]
             player3 = selected[1]
+            self.parent.destroy()
             game = Game(player1,player2,player3)
-            gameGUIObj = gameGUI(game,self.chatComm,self.chatObjs)
-            self.chatObjs[selected] = gameGUIObj
+            gameGUIObj = gameGUI(game,self.chatComm)
+            self.gameObjs[''.join(selected)] = gameGUIObj
         else:
             tkinter.messagebox.showerror("Error","Can't you find 2 friends to fight the professor with you?")
 
@@ -112,38 +115,149 @@ class gameGUI:
         self.chatComm = chatComm
         self.width = 800
         self.height = 600
-        self.fps = 24
+        self.fps = 20
         self.title = "Fight the Professor! By Eric Gao"
         self.bgColor = (255,255,255)
         self.Game = Game
         self.objs = []
+        self.chosenLandlord = False
         pygame.init()
+        self.run()
+    def sendGame(self,mod=0):
+        encoded = self.Game.encodeGame(mod)
+        self.chatComm.sendMessage(self.Game.p2.name,encoded.encode('utf-8'))
+        self.chatComm.sendMessage(self.Game.p3.name,encoded.encode('utf-8'))
+    def updateGame(self):
+        updates = self.chatComm.getMail()[0]
+        for i in updates:
+            if i[0] in [self.Game.p2.name,self.Game.p3.name]:
+                newInfo = i[1].split('@')
+                if newInfo[0] == 'GAME':
+                    self.Game = self.decodeGame(newInfo)
+                    break
+        self.chatComm.sendMessage(self.Game.p2,self.Game.encodeGame())
+        self.chatComm.sendMessage(self.Game.p3,self.Game.encodeGame())
+    def decodeGame(self,gameInfo):
+        newGame = Game(gameInfo[1],gameInfo[4],gameInfo[7])
+        newGame.p1.identity = gameInfo[2]
+        newGame.p2.identity = gameInfo[5]
+        newGame.p3.identity = gameInfo[8]
+        newGame.p1.cards = gameInfo[3]
+        newGame.p1.cards = gameInfo[6]
+        newGame.p1.cards = gameInfo[9]
+        newGame.currentPlayer = gameInfo[10]
+        newGame.prevPlay = gameInfo[11]
+        newGame.playOrder = gameInfo[12]
+        return newGame
     def initGUI(self):
         self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode((self.width, self.height))
+        self.screen.fill(self.bgColor)
         # set the title of the window
         pygame.display.set_caption(self.title)
-        # stores all the keys currently being held down
-        self._keys = dict()
-        self.confirmButton = Button(self.screen,30, 30, 400, 100, 'Confirm', self.confirmPlay)
+        # call for landlord
+        self.passButton = Button(self.screen,100,350,100,50,'Pass', self.passIdentity)
+        self.objs.append(self.passButton)
+        self.confirmButton = Button(self.screen,600,350,100,50,'Be Professor', self.confirmIdentity)
         self.objs.append(self.confirmButton)
-        self.prevPlayer = Player
-        self.objs.append(self.prevPlayer)
-        self.nextPlayer = Player
-        self.objs.append(self.nextPlayer)
+        self.Game.assignPlayOrder()
+        myPos = self.Game.playOrder.index(self.Game.p1)
+        if myPos == 0:
+            self.prevPlayer = Player(self.screen,self.Game.playOrder[2],50,50,50,50)
+            self.objs.append(self.prevPlayer)
+            self.nextPlayer = Player(self.screen,self.Game.playOrder[1],700,50,50,50)
+            self.objs.append(self.nextPlayer)
+        elif myPos == 1:
+            self.prevPlayer = Player(self.screen,self.Game.playOrder[0],50,50,50,50)
+            self.objs.append(self.prevPlayer)
+            self.nextPlayer = Player(self.screen,self.Game.playOrder[2],700,50,50,50)
+            self.objs.append(self.nextPlayer)
+        else:
+            self.prevPlayer = Player(self.screen,self.Game.playOrder[1],50,50,50,50)
+            self.objs.append(self.prevPlayer)
+            self.nextPlayer = Player(self.screen,self.Game.playOrder[0],700,50,50,50)
+            self.objs.append(self.nextPlayer)
         self.Game.shuffleDeck()
+        self.Game.dealCard()
+        xStart = 50
+        cardCnt = len(self.Game.p1.cards)
+        for card in self.Game.p1.cards:
+            self.cardObj = Card(self.screen,card,xStart,430,50,70,None)
+            self.objs.append(self.cardObj)
+            xStart += 700/cardCnt
+    def confirmIdentity(self):
+        self.Game.chooseLandlord(self.p1)
+        self.Game.makePlay('')
+        self.objs.remove(self.confirmButton)
+        self.objs.remove(self.passButton)
+        self.sendGame()
+        self.initMainGameGUI()
+    def passIdentity(self):
+        self.Game.makePlay('')
+        self.objs.remove(self.confirmButton)
+        self.objs.remove(self.passButton)
+        self.sendGame()
+    def selectCard(self):
+        self.selectedCards.append(self.cardObj.cardType)
+    def deSelect(self):
+        self.selectedCards.remove(self.cardObj.cardType)
+    def confirmCard(self):
+        self.Game.makePlay(self.selectedCards)
+        self.selectedCards = []
+        mod = self.Game.checkWin()
+        if mod == 1: # current player wins as professor
+            self.sendGame(1)
+            tkinter.Tk().wm_withdraw() #to hide the main window
+            tkinter.messagebox.showinfo('Winner','CONGRATS PROFESSOR! KEEP OPPRESSING YOUR STUDENTS!')
+            pygame.quit()
+        elif mod == 2: # current player wins as student
+            self.sendGame(2)
+            tkinter.Tk().wm_withdraw() #to hide the main window
+            tkinter.messagebox.showinfo('Winner','CONGRATS STUDENTS! KILL MORE PROFESSORS!')
+            pygame.quit()
+        else:
+            self.sendGame(0)
+    def initMainGameGUI(self):
+        self.objs.clear()
+        self.selectedCards = []
+        self.confirmButton = Button(self.screen,600,350,100,50,'Confirm Play', self.confirmCard)
+        self.objs.append(self.confirmButton)
+        myPos = self.Game.playOrder.index(self.Game.p1)
+        if myPos == 0:
+            self.prevPlayer = Player(self.screen,self.Game.playOrder[2],50,50,50,50)
+            self.objs.append(self.prevPlayer)
+            self.nextPlayer = Player(self.screen,self.Game.playOrder[1],700,50,50,50)
+            self.objs.append(self.nextPlayer)
+        elif myPos == 1:
+            self.prevPlayer = Player(self.screen,self.Game.playOrder[0],50,50,50,50)
+            self.objs.append(self.prevPlayer)
+            self.nextPlayer = Player(self.screen,self.Game.playOrder[2],700,50,50,50)
+            self.objs.append(self.nextPlayer)
+        else:
+            self.prevPlayer = Player(self.screen,self.Game.playOrder[1],50,50,50,50)
+            self.objs.append(self.prevPlayer)
+            self.nextPlayer = Player(self.screen,self.Game.playOrder[0],700,50,50,50)
+            self.objs.append(self.nextPlayer)
+        xStart = 50
+        cardCnt = len(self.Game.p1.cards)
+        for card in self.Game.p1.cards:
+            self.cardObj = Card(self.screen,card,xStart,430,50,70,self.selectCard,self.deSelect)
+            self.objs.append(self.cardObj)
+            xStart += 700/cardCnt
     def run(self):
         self.initGUI()
         playing = True
         while playing:
             time = self.clock.tick(self.fps)
-            self.timerFired(time)
+            #self.timerFired(time)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     playing = False
             for obj in self.objs:
                 obj.process()
-            self.screen.fill(self.bgColor)
+            if self.chosenLandlord:
+                self.initMainGameGUI()
+            
             pygame.display.flip()
 
         pygame.quit()
