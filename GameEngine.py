@@ -19,6 +19,11 @@ class Game:
         self.currentPlayer = ''
         self.prevPlay = ''
         self.playOrder = []
+    # helper function for sorting card
+    def sortHelper(self,x):
+            if x[-1] == '0':
+                return self.cardOrder['10']
+            return self.cardOrder[x[-1]]
     # encode game to a message
     def encodeGame(self,mod=0):
         return f'''@{str(mod)}@{self.p1.name}@{self.p1.identity}@{self.p1.cards}
@@ -56,34 +61,32 @@ class Game:
             choice = random.choice(self.deck)
             self.p3Card.append(choice)
             self.deck.remove(choice)
-        def sortHelper(x):
-            if x[-1] == '0':
-                return self.cardOrder['10']
-            return self.cardOrder[x[-1]]
         self.p1.cards = self.p1Card
         self.p2.cards = self.p2Card
         self.p3.cards = self.p3Card
-        self.p1.cards.sort(key=sortHelper)
-        self.p2.cards.sort(key=sortHelper)
-        self.p3.cards.sort(key=sortHelper)
+        self.p1.cards.sort(key=lambda x: self.sortHelper(x))
+        self.p2.cards.sort(key=lambda x: self.sortHelper(x))
+        self.p3.cards.sort(key=lambda x: self.sortHelper(x))
     # assign landlord
     def chooseLandlord(self,player):
         player.identity = 'p'
-        player.cards.append(self.landLordCards)
+        for card in self.landLordCards:
+            player.cards.append(card)
+        player.cards.sort(key=lambda x: self.sortHelper(x))
     # assign play sequence
     def assignPlayOrder(self):
         if self.p1.identity == 'p':
             self.playOrder = [self.p2,self.p3]
             random.shuffle(self.playOrder)
-            self.playOrder = self.playOrder.append(self.p1)[-1:]
+            self.playOrder.insert(0,self.p1)
         elif self.p2.identity == 'p':
             self.playOrder = [self.p1,self.p3]
             random.shuffle(self.playOrder)
-            self.playOrder = self.playOrder.append(self.p2)[-1:]
+            self.playOrder.insert(0,self.p2)
         elif self.p3.identity == 'p':
             self.playOrder = [self.p1,self.p2]
             random.shuffle(self.playOrder)
-            self.playOrder = self.playOrder.append(self.p3)[-1:]
+            self.playOrder.insert(0,self.p3)
         else:
             self.playOrder = [self.p1,self.p2,self.p3]
             random.shuffle(self.playOrder)
@@ -135,5 +138,6 @@ class player:
         self.cards = []
     # make a play
     def playCard(self,selectedCards):
+        print(self.cards,selectedCards)
         for i in selectedCards:
             self.cards.remove(i)

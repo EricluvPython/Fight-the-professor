@@ -125,8 +125,8 @@ class gameGUI:
         self.run()
     def sendGame(self,mod=0):
         encoded = self.Game.encodeGame(mod)
-        self.chatComm.sendMessage(self.Game.p2.name,encoded.encode('utf-8'))
-        self.chatComm.sendMessage(self.Game.p3.name,encoded.encode('utf-8'))
+        self.chatComm.sendMessage(self.Game.p2.name,encoded)
+        self.chatComm.sendMessage(self.Game.p3.name,encoded)
     def updateGame(self):
         updates = self.chatComm.getMail()[0]
         for i in updates:
@@ -182,14 +182,33 @@ class gameGUI:
         xStart = 50
         cardCnt = len(self.Game.p1.cards)
         for card in self.Game.p1.cards:
-            self.cardObj = Card(self.screen,card,xStart,430,50,70,None)
+            self.cardObj = Card(self.screen,card,xStart,430,50,70)
             self.objs.append(self.cardObj)
             xStart += 700/cardCnt
     def confirmIdentity(self):
-        self.Game.chooseLandlord(self.p1)
-        self.Game.makePlay('')
+        self.Game.chooseLandlord(self.Game.p1)
+        self.Game.assignPlayOrder()
         self.objs.remove(self.confirmButton)
         self.objs.remove(self.passButton)
+        self.objs.remove(self.prevPlayer)
+        self.objs.remove(self.nextPlayer)
+        myPos = self.Game.playOrder.index(self.Game.p1)
+        if myPos == 0:
+            self.prevPlayer = Player(self.screen,self.Game.playOrder[2],50,50,50,50)
+            self.objs.append(self.prevPlayer)
+            self.nextPlayer = Player(self.screen,self.Game.playOrder[1],700,50,50,50)
+            self.objs.append(self.nextPlayer)
+        elif myPos == 1:
+            self.prevPlayer = Player(self.screen,self.Game.playOrder[0],50,50,50,50)
+            self.objs.append(self.prevPlayer)
+            self.nextPlayer = Player(self.screen,self.Game.playOrder[2],700,50,50,50)
+            self.objs.append(self.nextPlayer)
+        else:
+            self.prevPlayer = Player(self.screen,self.Game.playOrder[1],50,50,50,50)
+            self.objs.append(self.prevPlayer)
+            self.nextPlayer = Player(self.screen,self.Game.playOrder[0],700,50,50,50)
+            self.objs.append(self.nextPlayer)
+        self.Game.makePlay('')
         self.sendGame()
         self.initMainGameGUI()
     def passIdentity(self):
@@ -197,10 +216,14 @@ class gameGUI:
         self.objs.remove(self.confirmButton)
         self.objs.remove(self.passButton)
         self.sendGame()
-    def selectCard(self):
-        self.selectedCards.append(self.cardObj.cardType)
-    def deSelect(self):
-        self.selectedCards.remove(self.cardObj.cardType)
+    def selectCard(self,cardVal):
+        if cardVal not in self.selectedCards:
+            self.selectedCards.append(cardVal)
+            print(f"Selected: {cardVal}")
+    def deSelect(self,cardVal):
+        if cardVal in self.selectedCards:
+            self.selectedCards.remove(cardVal)
+            print(f"Deselected: {cardVal}")
     def confirmCard(self):
         self.Game.makePlay(self.selectedCards)
         self.selectedCards = []
@@ -240,8 +263,10 @@ class gameGUI:
             self.objs.append(self.nextPlayer)
         xStart = 50
         cardCnt = len(self.Game.p1.cards)
+        self.cardDict = {}
         for card in self.Game.p1.cards:
-            self.cardObj = Card(self.screen,card,xStart,430,50,70,self.selectCard,self.deSelect)
+            self.cardObj = Card(self.screen,card,xStart,430,50,70,lambda x=card: self.selectCard(x),lambda x=card: self.deSelect(x))
+            self.cardDict[card] = self.cardObj
             self.objs.append(self.cardObj)
             xStart += 700/cardCnt
     def run(self):
@@ -251,10 +276,14 @@ class gameGUI:
             time = self.clock.tick(self.fps)
             #self.timerFired(time)
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    for obj in self.objs:
+                        obj.process()
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    for obj in self.objs:
+                        obj.process()
+                elif event.type == pygame.QUIT:
                     playing = False
-            for obj in self.objs:
-                obj.process()
             if self.chosenLandlord:
                 self.initMainGameGUI()
             
