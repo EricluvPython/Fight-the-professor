@@ -19,6 +19,12 @@ class Game:
         self.currentPlayer = ''
         self.prevPlay = ''
         self.playOrder = []
+    # encode game to a message
+    def encodeGame(self,mod=0):
+        return f'''@{str(mod)}@{self.p1.name}@{self.p1.identity}@{self.p1.cards}
+        @{self.p2.name}@{self.p2.identity}@{self.p2.cards}
+        @{self.p3.name}@{self.p3.identity}@{self.p3.cards}
+        @{self.currentPlayer}@{self.prevPlay}@{self.playOrder}'''
     # distribute the initial card
     def shuffleDeck(self):
         self.deck = []
@@ -50,9 +56,16 @@ class Game:
             choice = random.choice(self.deck)
             self.p3Card.append(choice)
             self.deck.remove(choice)
+        def sortHelper(x):
+            if x[-1] == '0':
+                return self.cardOrder['10']
+            return self.cardOrder[x[-1]]
         self.p1.cards = self.p1Card
         self.p2.cards = self.p2Card
         self.p3.cards = self.p3Card
+        self.p1.cards.sort(key=sortHelper)
+        self.p2.cards.sort(key=sortHelper)
+        self.p3.cards.sort(key=sortHelper)
     # assign landlord
     def chooseLandlord(self,player):
         player.identity = 'p'
@@ -60,14 +73,20 @@ class Game:
     # assign play sequence
     def assignPlayOrder(self):
         if self.p1.identity == 'p':
-            self.playOrder = random.shuffle([self.p2,self.p3])
+            self.playOrder = [self.p2,self.p3]
+            random.shuffle(self.playOrder)
             self.playOrder = self.playOrder.append(self.p1)[-1:]
         elif self.p2.identity == 'p':
-            self.playOrder = random.shuffle([self.p1,self.p3])
+            self.playOrder = [self.p1,self.p3]
+            random.shuffle(self.playOrder)
             self.playOrder = self.playOrder.append(self.p2)[-1:]
         elif self.p3.identity == 'p':
-            self.playOrder = random.shuffle([self.p1,self.p2])
+            self.playOrder = [self.p1,self.p2]
+            random.shuffle(self.playOrder)
             self.playOrder = self.playOrder.append(self.p3)[-1:]
+        else:
+            self.playOrder = [self.p1,self.p2,self.p3]
+            random.shuffle(self.playOrder)
         self.currentPlayer = self.playOrder[0]
     # identify pattern of played card
     def whichPattern(self,selectedCards):
