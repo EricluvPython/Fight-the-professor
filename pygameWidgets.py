@@ -80,7 +80,6 @@ class Card:
                     self.cancelFunction()
         if self.pressedCnt == 1:
             self.cardRect = pygame.Rect(self.x,self.newY['pressed'],self.width, self.height)
-            self.onclickFunction()
         else:
             self.cardRect = pygame.Rect(self.x, self.newY['normal'], self.width, self.height)
         self.cardSurface.blit(self.cardImg, [

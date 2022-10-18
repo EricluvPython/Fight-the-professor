@@ -26,10 +26,10 @@ class Game:
             return self.cardOrder[x[-1]]
     # encode game to a message
     def encodeGame(self,mod=0):
-        return f'''@{str(mod)}@{self.p1.name}@{self.p1.identity}@{self.p1.cards}
-        @{self.p2.name}@{self.p2.identity}@{self.p2.cards}
-        @{self.p3.name}@{self.p3.identity}@{self.p3.cards}
-        @{self.currentPlayer}@{self.prevPlay}@{self.playOrder}'''
+        return f'''#{str(mod)}#{self.p1.name}#{self.p1.identity}#{self.p1.cards}
+        #{self.p2.name}#{self.p2.identity}#{self.p2.cards}
+        #{self.p3.name}#{self.p3.identity}#{self.p3.cards}
+        #{self.currentPlayer}#{self.prevPlay}#{self.playOrder}'''
     # distribute the initial card
     def shuffleDeck(self):
         self.deck = []

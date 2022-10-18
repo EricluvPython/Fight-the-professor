@@ -131,8 +131,8 @@ class gameGUI:
         updates = self.chatComm.getMail()[0]
         for i in updates:
             if i[0] in [self.Game.p2.name,self.Game.p3.name]:
-                newInfo = i[1].split('@')
-                if newInfo[0] == 'GAME':
+                newInfo = i[1].split('#')
+                if newInfo[0] in ['0','1','2']:
                     self.Game = self.decodeGame(newInfo)
                     break
         self.chatComm.sendMessage(self.Game.p2,self.Game.encodeGame())
@@ -182,8 +182,8 @@ class gameGUI:
         xStart = 50
         cardCnt = len(self.Game.p1.cards)
         for card in self.Game.p1.cards:
-            self.cardObj = Card(self.screen,card,xStart,430,50,70)
-            self.objs.append(self.cardObj)
+            cardObj = Card(self.screen,card,xStart,430,50,70)
+            self.objs.append(cardObj)
             xStart += 700/cardCnt
     def confirmIdentity(self):
         self.Game.chooseLandlord(self.Game.p1)
@@ -192,23 +192,10 @@ class gameGUI:
         self.objs.remove(self.passButton)
         self.objs.remove(self.prevPlayer)
         self.objs.remove(self.nextPlayer)
-        myPos = self.Game.playOrder.index(self.Game.p1)
-        if myPos == 0:
-            self.prevPlayer = Player(self.screen,self.Game.playOrder[2],50,50,50,50)
-            self.objs.append(self.prevPlayer)
-            self.nextPlayer = Player(self.screen,self.Game.playOrder[1],700,50,50,50)
-            self.objs.append(self.nextPlayer)
-        elif myPos == 1:
-            self.prevPlayer = Player(self.screen,self.Game.playOrder[0],50,50,50,50)
-            self.objs.append(self.prevPlayer)
-            self.nextPlayer = Player(self.screen,self.Game.playOrder[2],700,50,50,50)
-            self.objs.append(self.nextPlayer)
-        else:
-            self.prevPlayer = Player(self.screen,self.Game.playOrder[1],50,50,50,50)
-            self.objs.append(self.prevPlayer)
-            self.nextPlayer = Player(self.screen,self.Game.playOrder[0],700,50,50,50)
-            self.objs.append(self.nextPlayer)
-        self.Game.makePlay('')
+        self.prevPlayer = Player(self.screen,self.Game.playOrder[2],50,50,50,50)
+        self.objs.append(self.prevPlayer)
+        self.nextPlayer = Player(self.screen,self.Game.playOrder[1],700,50,50,50)
+        self.objs.append(self.nextPlayer)
         self.sendGame()
         self.initMainGameGUI()
     def passIdentity(self):
@@ -217,15 +204,17 @@ class gameGUI:
         self.objs.remove(self.passButton)
         self.sendGame()
     def selectCard(self,cardVal):
-        if cardVal not in self.selectedCards:
+        if cardVal not in self.selectedCards and cardVal in self.Game.p1.cards:
             self.selectedCards.append(cardVal)
             print(f"Selected: {cardVal}")
     def deSelect(self,cardVal):
-        if cardVal in self.selectedCards:
+        if cardVal in self.selectedCards and cardVal in self.Game.p1.cards:
             self.selectedCards.remove(cardVal)
             print(f"Deselected: {cardVal}")
     def confirmCard(self):
         self.Game.makePlay(self.selectedCards)
+        self.updateCards()
+        self.objs.remove(self.confirmButton)
         self.selectedCards = []
         mod = self.Game.checkWin()
         if mod == 1: # current player wins as professor
@@ -240,6 +229,20 @@ class gameGUI:
             pygame.quit()
         else:
             self.sendGame(0)
+    def updateCards(self):
+        for i in self.objs:
+            if type(i).__name__ == 'Card':
+                del i
+        self.cardDict.clear()
+        print(self.objs)
+        print(self.cardDict)
+        xStart = 50
+        cardCnt = len(self.Game.p1.cards)
+        for card in self.Game.p1.cards:
+            cardObj = Card(self.screen,card,xStart,430,50,70,lambda x=card: self.selectCard(x),lambda x=card: self.deSelect(x))
+            self.objs.append(cardObj)
+            self.cardDict[card] = cardObj
+            xStart += 700/cardCnt
     def initMainGameGUI(self):
         self.objs.clear()
         self.selectedCards = []
@@ -265,9 +268,9 @@ class gameGUI:
         cardCnt = len(self.Game.p1.cards)
         self.cardDict = {}
         for card in self.Game.p1.cards:
-            self.cardObj = Card(self.screen,card,xStart,430,50,70,lambda x=card: self.selectCard(x),lambda x=card: self.deSelect(x))
-            self.cardDict[card] = self.cardObj
-            self.objs.append(self.cardObj)
+            cardObj = Card(self.screen,card,xStart,430,50,70,lambda x=card: self.selectCard(x),lambda x=card: self.deSelect(x))
+            self.cardDict[card] = cardObj
+            self.objs.append(cardObj)
             xStart += 700/cardCnt
     def run(self):
         self.initGUI()
