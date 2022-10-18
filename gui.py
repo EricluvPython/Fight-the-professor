@@ -234,8 +234,6 @@ class gameGUI:
             if type(i).__name__ == 'Card':
                 del i
         self.cardDict.clear()
-        print(self.objs)
-        print(self.cardDict)
         xStart = 50
         cardCnt = len(self.Game.p1.cards)
         for card in self.Game.p1.cards:
