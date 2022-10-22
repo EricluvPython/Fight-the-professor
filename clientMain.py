@@ -1,4 +1,4 @@
-from gui import *
+from client import *
 
 wnd = tkinter.Tk()
 wnd.geometry("800x600")
