@@ -9,6 +9,8 @@ from chatComm import *
 import tkinter.messagebox
 from pygameWidgets import *
 from GameEngine import *
+import time, threading
+import datetime
 
 class loginGUI:
     def __init__(self,parent):
@@ -121,6 +123,8 @@ class gameGUI:
         self.Game = Game
         self.objs = []
         self.chosenLandlord = False
+        self.cardDict = {}
+        self.selectedCards = []
         pygame.init()
         self.run()
     def sendGame(self,mod=0):
@@ -149,56 +153,12 @@ class gameGUI:
         newGame.prevPlay = gameInfo[11]
         newGame.playOrder = gameInfo[12]
         return newGame
-    def initGUI(self):
-        self.clock = pygame.time.Clock()
-        self.screen = pygame.display.set_mode((self.width, self.height))
-        self.screen.fill(self.bgColor)
-        # set the title of the window
-        pygame.display.set_caption(self.title)
-        # call for landlord
-        self.passButton = Button(self.screen,100,350,100,50,'Pass', self.passIdentity)
-        self.objs.append(self.passButton)
-        self.confirmButton = Button(self.screen,600,350,100,50,'Be Professor', self.confirmIdentity)
-        self.objs.append(self.confirmButton)
-        self.Game.assignPlayOrder()
-        myPos = self.Game.playOrder.index(self.Game.p1.name)
-        if myPos == 0:
-            self.prevPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[2]],50,50,50,50)
-            self.objs.append(self.prevPlayer)
-            self.nextPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[1]],700,50,50,50)
-            self.objs.append(self.nextPlayer)
-        elif myPos == 1:
-            self.prevPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[0]],50,50,50,50)
-            self.objs.append(self.prevPlayer)
-            self.nextPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[2]],700,50,50,50)
-            self.objs.append(self.nextPlayer)
-        else:
-            self.prevPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[1]],50,50,50,50)
-            self.objs.append(self.prevPlayer)
-            self.nextPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[0]],700,50,50,50)
-            self.objs.append(self.nextPlayer)
-        self.Game.shuffleDeck()
-        self.Game.dealCard()
-        self.sendGame(0)
-        xStart = 50
-        cardCnt = len(self.Game.p1.cards)
-        for card in self.Game.p1.cards:
-            cardObj = Card(self.screen,card,xStart,430,50,70)
-            self.objs.append(cardObj)
-            xStart += 700/cardCnt
     def confirmIdentity(self):
         self.Game.chooseLandlord(self.Game.p1)
+        self.chosenLandlord = True
         self.Game.assignPlayOrder()
-        self.objs.remove(self.confirmButton)
-        self.objs.remove(self.passButton)
-        self.objs.remove(self.prevPlayer)
-        self.objs.remove(self.nextPlayer)
-        self.prevPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[2]],50,50,50,50)
-        self.objs.append(self.prevPlayer)
-        self.nextPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[1]],700,50,50,50)
-        self.objs.append(self.nextPlayer)
+        self.updateScreen()
         self.sendGame()
-        self.initMainGameGUI()
     def passIdentity(self):
         self.Game.makePlay('')
         self.objs.remove(self.confirmButton)
@@ -215,7 +175,6 @@ class gameGUI:
     def confirmCard(self):
         self.Game.makePlay(self.selectedCards)
         self.updateScreen()
-        self.objs.remove(self.confirmButton)
         self.selectedCards = []
         mod = self.Game.checkWin()
         if mod == 1: # current player wins as professor
@@ -231,28 +190,32 @@ class gameGUI:
         else:
             self.sendGame(0)
     def updateScreen(self):
-        for i in self.objs:
-            if type(i).__name__ == 'Card':
-                del i
-        self.cardDict.clear()
+        # clear everything
+        self.objs.clear()
+        # update cards
+        for i in self.cardDict:
+            if i not in self.Game.p1.cards:
+                self.cardDict[i] = None
         xStart = 50
         cardCnt = len(self.Game.p1.cards)
         for card in self.Game.p1.cards:
-            cardObj = Card(self.screen,card,xStart,430,50,70,lambda x=card: self.selectCard(x),lambda x=card: self.deSelect(x))
-            self.objs.append(cardObj)
-            self.cardDict[card] = cardObj
+            if card not in self.cardDict:
+                cardObj = Card(self.screen,card,xStart,430,50,70,lambda x=card: self.selectCard(x),lambda x=card: self.deSelect(x))
+                self.cardDict[card] = cardObj
+            else:
+                cardObj = self.cardDict[card]
+                cardObj.x = xStart
+            if cardObj not in self.objs:
+                self.objs.append(cardObj)
             xStart += 700/cardCnt
         xStart = 350
+        # update played cards
         for card in self.Game.prevPlay:
             prevPlayObj = Card(self.screen,card,xStart,180,50,70)
             self.objs.append(prevPlayObj)
             xStart += 400/cardCnt
-    def initMainGameGUI(self):
-        self.objs.clear()
-        self.selectedCards = []
-        self.confirmButton = Button(self.screen,600,350,100,50,'Confirm Play', self.confirmCard)
-        self.objs.append(self.confirmButton)
-        myPos = self.Game.playOrder.index(self.Game.p1)
+        # update avatars and positions
+        myPos = self.Game.playOrder.index(self.Game.p1.name)
         if myPos == 0:
             self.prevPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[2]],50,50,50,50)
             self.objs.append(self.prevPlayer)
@@ -268,20 +231,36 @@ class gameGUI:
             self.objs.append(self.prevPlayer)
             self.nextPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[0]],700,50,50,50)
             self.objs.append(self.nextPlayer)
-        xStart = 50
-        cardCnt = len(self.Game.p1.cards)
-        self.cardDict = {}
-        for card in self.Game.p1.cards:
-            cardObj = Card(self.screen,card,xStart,430,50,70,lambda x=card: self.selectCard(x),lambda x=card: self.deSelect(x))
-            self.cardDict[card] = cardObj
-            self.objs.append(cardObj)
-            xStart += 700/cardCnt
+        # update buttons
+        if self.chosenLandlord and self.Game.currentPlayer == self.Game.p1.name:
+            self.confirmButton = Button(self.screen,600,350,100,50,'Confirm Play', self.confirmCard)
+            self.objs.append(self.confirmButton)
+        elif not self.chosenLandlord and self.Game.currentPlayer == self.Game.p1.name:
+            self.passButton = Button(self.screen,100,350,100,50,'Pass', self.passIdentity)
+            self.objs.append(self.passButton)
+            self.confirmButton = Button(self.screen,600,350,100,50,'Be Professor', self.confirmIdentity)
+            self.objs.append(self.confirmButton)
+        # periodically run this
+        #threading.Timer(5, self.updateScreen).start()
+    def initGUI(self):
+        # set basic variables
+        self.clock = pygame.time.Clock()
+        self.screen = pygame.display.set_mode((self.width, self.height))
+        self.screen.fill(self.bgColor)
+        pygame.display.set_caption(self.title)
+        # initialize game engine
+        self.Game.assignPlayOrder()
+        self.Game.shuffleDeck()
+        self.Game.dealCard()
+        self.sendGame(0)
+        # update screen
+        self.updateScreen()
+        
     def run(self):
         self.initGUI()
         playing = True
         while playing:
             time = self.clock.tick(self.fps)
-            #self.timerFired(time)
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     for obj in self.objs:
@@ -291,9 +270,7 @@ class gameGUI:
                         obj.process()
                 elif event.type == pygame.QUIT:
                     playing = False
-            if self.chosenLandlord:
-                self.initMainGameGUI()
-            
+            if time%10 == 0:
+                self.updateScreen()
             pygame.display.flip()
-
         pygame.quit()

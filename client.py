@@ -9,6 +9,7 @@ import tkinter.messagebox
 from pygameWidgets import *
 from GameEngine import *
 import ast
+import schedule
 
 class loginGUI:
     def __init__(self,parent):
@@ -66,15 +67,24 @@ class loginGUI:
         return newGame
     # create the main gui
     def checkForGame(self):
+        def convertHelper(s):
+            s = ast.literal_eval(s)
+            for i in range(len(s)):
+                if len(s[i]) > 1:
+                    if s[i][-1] == '0':
+                        s[i] = s[i][:-2]+' '+s[i][-2:]
+                    else:
+                        s[i] = s[i][:-1]+' '+s[i][-1]
+            return s
         messages = self.chatComm.getMail()[0]
         for i in messages:
-            print(i)
             info = i[1].replace('\n','').replace(' ','').split('#')
             info = info[1:]
-            info[3] = ast.literal_eval(info[3])
-            info[6] = ast.literal_eval(info[6])
-            info[9] = ast.literal_eval(info[9])
+            info[3] = convertHelper(info[3])
+            info[6] = convertHelper(info[6])
+            info[9] = convertHelper(info[9])
             info[12] = ast.literal_eval(info[12])
+            print(info)
             if len(info) == 13 and info[0] in ['0','1','2']:
                 self.Game = self.decodeGame(info)
                 gameGUIObj = clientGUI(self.Game,self.chatComm,self.username)
@@ -110,7 +120,9 @@ class clientGUI:
     def updateGame(self):
         updates = self.chatComm.getMail()[0]
         for i in updates:
-            if i[0] in [self.Game.p1.name,self.Game.p2.name,self.Game.p3.name]-[self.name]:
+            target = [self.Game.p1.name,self.Game.p2.name,self.Game.p3.name]
+            target.remove(self.name)
+            if i[0] in target:
                 newInfo = i[1].split('#')
                 if newInfo[0] in ['0','1','2']:
                     self.Game = self.decodeGame(newInfo)
@@ -135,6 +147,7 @@ class clientGUI:
         self.screen.fill(self.bgColor)
         # set the title of the window
         pygame.display.set_caption(self.title)
+        schedule.every(5).seconds.do(self.updateGame)
         self.updateGame()
         xStart = 50
         cardCnt = len(self.player.cards)
@@ -143,14 +156,14 @@ class clientGUI:
             self.objs.append(cardObj)
             xStart += 700/cardCnt
         # call for landlord
-        if self.Game.currentPlayer == self.name and self.playOrder.index(self.Game.currentPlayer) == 2:
+        if self.Game.currentPlayer == self.name and self.Game.playOrder.index(self.Game.currentPlayer) == 2:
             self.confirmIdentity()
         if self.Game.currentPlayer == self.name:
             self.passButton = Button(self.screen,100,350,100,50,'Pass', self.passIdentity)
             self.objs.append(self.passButton)
             self.confirmButton = Button(self.screen,600,350,100,50,'Be Professor', self.confirmIdentity)
             self.objs.append(self.confirmButton)
-            myPos = self.Game.playOrder.index(self.Game.p1)
+            myPos = self.Game.playOrder.index(self.name)
             if myPos == 0:
                 self.prevPlayer = Player(self.screen,self.Game.playOrder[2],50,50,50,50)
                 self.objs.append(self.prevPlayer)
@@ -236,7 +249,7 @@ class clientGUI:
         self.selectedCards = []
         self.confirmButton = Button(self.screen,600,350,100,50,'Confirm Play', self.confirmCard)
         self.objs.append(self.confirmButton)
-        myPos = self.Game.playOrder.index(self.player)
+        myPos = self.Game.playOrder.index(self.name)
         if myPos == 0:
             self.prevPlayer = Player(self.screen,self.Game.playOrder[2],50,50,50,50)
             self.objs.append(self.prevPlayer)
@@ -277,7 +290,7 @@ class clientGUI:
                     playing = False
             if self.chosenLandlord:
                 self.initMainGameGUI()
-            
+            schedule.run_pending()
             pygame.display.flip()
 
         pygame.quit()
