@@ -276,7 +276,6 @@ class gameGUI:
                     playing = False
             for obj in self.objs:
                 obj.process()
-            if cnt%10 == 0:
-                self.updateScreen()
+            self.updateScreen()
             pygame.display.flip()
         pygame.quit()
