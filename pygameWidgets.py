@@ -60,7 +60,7 @@ class Card:
         self.pressedCnt = 0
         self.newY = {
             'normal': self.y,
-            'hover': self.y-2,
+            'hover': self.y-3,
             'pressed': self.y-5,
         }
         self.cardImg = pygame.image.load(f"./imgs/pokers/{self.cardType}.png")
@@ -69,9 +69,10 @@ class Card:
         self.cardSurface = pygame.Surface((self.width, self.height))
         self.cardRect = pygame.Rect(self.x, self.y, self.width, self.height)
     def process(self):
+        condition = 'normal'
         mousePos = pygame.mouse.get_pos()
         if self.cardRect.collidepoint(mousePos):
-            self.cardRect = pygame.Rect(self.x,self.newY['hover'],self.width, self.height)
+            condition = 'hover'
             if pygame.mouse.get_pressed(num_buttons=3)[0]:
                 self.pressedCnt = (self.pressedCnt+1)%2
                 if self.pressedCnt == 1:
@@ -79,9 +80,10 @@ class Card:
                 else:
                     self.cancelFunction()
         if self.pressedCnt == 1:
-            self.cardRect = pygame.Rect(self.x,self.newY['pressed'],self.width, self.height)
+            condition = 'pressed'
         else:
-            self.cardRect = pygame.Rect(self.x, self.newY['normal'], self.width, self.height)
+            condition = 'normal'
+        self.cardRect = pygame.Rect(self.x, self.newY[condition], self.width, self.height)
         self.cardSurface.blit(self.cardImg, [
             self.cardRect.width/2 - self.cardSurface.get_rect().width/2,
             self.cardRect.height/2 - self.cardSurface.get_rect().height/2

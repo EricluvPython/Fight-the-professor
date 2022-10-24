@@ -117,7 +117,7 @@ class gameGUI:
         self.chatComm = chatComm
         self.width = 800
         self.height = 600
-        self.fps = 20
+        self.fps = 240
         self.title = "Fight the Professor! By Eric Gao"
         self.bgColor = (255,255,255)
         self.Game = Game
@@ -240,8 +240,6 @@ class gameGUI:
             self.objs.append(self.passButton)
             self.confirmButton = Button(self.screen,600,350,100,50,'Be Professor', self.confirmIdentity)
             self.objs.append(self.confirmButton)
-        # periodically run this
-        #threading.Timer(5, self.updateScreen).start()
     def initGUI(self):
         # set basic variables
         self.clock = pygame.time.Clock()
@@ -259,8 +257,14 @@ class gameGUI:
     def run(self):
         self.initGUI()
         playing = True
+        cnt = 0
         while playing:
+            self.screen.fill(self.bgColor)
             time = self.clock.tick(self.fps)
+            cnt += 1
+            # to show the initial screen
+            for obj in self.objs:
+                obj.process()
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     for obj in self.objs:
@@ -268,9 +272,11 @@ class gameGUI:
                 elif event.type == pygame.MOUSEBUTTONUP:
                     for obj in self.objs:
                         obj.process()
-                elif event.type == pygame.QUIT:
+                if event.type == pygame.QUIT:
                     playing = False
-            if time%10 == 0:
+            for obj in self.objs:
+                obj.process()
+            if cnt%10 == 0:
                 self.updateScreen()
             pygame.display.flip()
         pygame.quit()
