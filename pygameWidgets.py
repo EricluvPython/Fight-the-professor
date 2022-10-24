@@ -7,7 +7,7 @@
 import pygame
 
 class Button():
-    def __init__(self,screen, x, y, width, height, buttonText='Button', onclickFunction=lambda : 1, onePress=False):
+    def __init__(self,screen, x, y, width, height, buttonText='Button', onclickFunction=lambda : print("Not assigned function"), onePress=False):
         self.screen = screen
         self.x = x
         self.y = y
@@ -48,7 +48,7 @@ class Button():
         pygame.draw.rect(self.screen, (0,0,0), self.buttonRect, 2)
 
 class Card:
-    def __init__(self,screen, cardType, x, y, width, height, onclickFunction=lambda : 1,cancelFuction=lambda : 1):
+    def __init__(self,screen, cardType, x, y, width, height, onclickFunction=lambda : print("Not assigned function"),cancelFuction=lambda : print("Not assigned function")):
         self.screen = screen
         self.cardType = cardType
         self.x = x

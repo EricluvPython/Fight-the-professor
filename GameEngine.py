@@ -105,9 +105,12 @@ class Game:
     def isValidPlay(self,selected):
         pattern1 = self.whichPattern(self.prevPlay)
         pattern2 = self.whichPattern(selected)
+        print(pattern1,pattern2)
         if pattern2['type'] == 15 or pattern1['type'] == 5:
             return False
         elif pattern2['type'] == 5:
+            return True
+        elif pattern1['type'] == 0:
             return True
         else:
             if pattern1['type'] == pattern2['type'] and\

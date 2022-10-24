@@ -11,6 +11,7 @@ from pygameWidgets import *
 from GameEngine import *
 import time, threading
 import datetime
+import inspect
 
 class loginGUI:
     def __init__(self,parent):
@@ -117,7 +118,7 @@ class gameGUI:
         self.chatComm = chatComm
         self.width = 800
         self.height = 600
-        self.fps = 240
+        self.fps = 40
         self.title = "Fight the Professor! By Eric Gao"
         self.bgColor = (255,255,255)
         self.Game = Game
@@ -157,42 +158,41 @@ class gameGUI:
         self.Game.chooseLandlord(self.Game.p1)
         self.chosenLandlord = True
         self.Game.assignPlayOrder()
-        self.updateScreen()
         self.sendGame()
     def passIdentity(self):
-        self.Game.makePlay('')
-        self.objs.remove(self.confirmButton)
-        self.objs.remove(self.passButton)
+        self.Game.makePlay([])
         self.sendGame()
     def selectCard(self,cardVal):
         if cardVal not in self.selectedCards and cardVal in self.Game.p1.cards:
             self.selectedCards.append(cardVal)
-            print(f"Selected: {cardVal}")
     def deSelect(self,cardVal):
         if cardVal in self.selectedCards and cardVal in self.Game.p1.cards:
             self.selectedCards.remove(cardVal)
-            print(f"Deselected: {cardVal}")
     def confirmCard(self):
-        self.Game.makePlay(self.selectedCards)
-        self.updateScreen()
-        self.selectedCards = []
-        mod = self.Game.checkWin()
-        if mod == 1: # current player wins as professor
-            self.sendGame(1)
-            tkinter.Tk().wm_withdraw() #to hide the main window
-            tkinter.messagebox.showinfo('Winner','CONGRATS PROFESSOR! KEEP OPPRESSING YOUR STUDENTS!')
-            pygame.quit()
-        elif mod == 2: # current player wins as student
-            self.sendGame(2)
-            tkinter.Tk().wm_withdraw() #to hide the main window
-            tkinter.messagebox.showinfo('Winner','CONGRATS STUDENTS! KILL MORE PROFESSORS!')
-            pygame.quit()
-        else:
-            self.sendGame(0)
+        if self.selectedCards != [] and self.Game.isValidPlay(self.selectedCards):
+            self.Game.makePlay(self.selectedCards)
+            self.selectedCards = []
+            mod = self.Game.checkWin()
+            if mod == 1: # current player wins as professor
+                self.sendGame(1)
+                tkinter.Tk().wm_withdraw() #to hide the main window
+                tkinter.messagebox.showinfo('Winner','CONGRATS PROFESSOR! KEEP OPPRESSING YOUR STUDENTS!')
+                pygame.quit()
+            elif mod == 2: # current player wins as student
+                self.sendGame(2)
+                tkinter.Tk().wm_withdraw() #to hide the main window
+                tkinter.messagebox.showinfo('Winner','CONGRATS STUDENTS! KILL MORE PROFESSORS!')
+                pygame.quit()
+            else:
+                self.sendGame(0)
+    def passCard(self):
+        if self.selectedCards == []:
+            self.Game.makePlay([])
+            self.sendGame()
     def updateScreen(self):
         # clear everything
         self.objs.clear()
-        # update cards
+        # update hand cards
         for i in self.cardDict:
             if i not in self.Game.p1.cards:
                 self.cardDict[i] = None
@@ -233,8 +233,10 @@ class gameGUI:
             self.objs.append(self.nextPlayer)
         # update buttons
         if self.chosenLandlord and self.Game.currentPlayer == self.Game.p1.name:
-            self.confirmButton = Button(self.screen,600,350,100,50,'Confirm Play', self.confirmCard)
-            self.objs.append(self.confirmButton)
+            self.passCardButton = Button(self.screen,100,350,100,50,'Pass turn', self.passCard)
+            self.objs.append(self.passCardButton)
+            self.confirmCardButton = Button(self.screen,600,350,100,50,'Confirm Play', self.confirmCard)
+            self.objs.append(self.confirmCardButton)
         elif not self.chosenLandlord and self.Game.currentPlayer == self.Game.p1.name:
             self.passButton = Button(self.screen,100,350,100,50,'Pass', self.passIdentity)
             self.objs.append(self.passButton)
@@ -253,29 +255,24 @@ class gameGUI:
         self.sendGame(0)
         # update screen
         self.updateScreen()
-        
     def run(self):
         self.initGUI()
         playing = True
         cnt = 0
         while playing:
             self.screen.fill(self.bgColor)
-            time = self.clock.tick(self.fps)
-            cnt += 1
+            self.clock.tick(self.fps)
+            self.updateScreen()
             # to show the initial screen
             for obj in self.objs:
                 obj.process()
             for event in pygame.event.get():
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    for obj in self.objs:
-                        obj.process()
-                elif event.type == pygame.MOUSEBUTTONUP:
+                if event.type in [pygame.MOUSEBUTTONDOWN,pygame.MOUSEBUTTONUP]:
                     for obj in self.objs:
                         obj.process()
                 if event.type == pygame.QUIT:
                     playing = False
             for obj in self.objs:
                 obj.process()
-            self.updateScreen()
             pygame.display.flip()
         pygame.quit()
