@@ -9,7 +9,7 @@ import tkinter.messagebox
 from pygameWidgets import *
 from GameEngine import *
 import ast
-import schedule
+from utils import convertHelper
 
 class loginGUI:
     def __init__(self,parent):
@@ -22,7 +22,7 @@ class loginGUI:
         self.chatComm.startConnection()
         self.loggedin = False
         # title label
-        titleLab = tkinter.Label(self.mainFrame,text="FIGHT THE PROFESSOR! presented by Eric Gao",font=30)
+        titleLab = tkinter.Label(self.mainFrame,text="FIGHT THE PROFESSOR! presented by Eric Gao\n",font=30)
         titleLab.pack()
         # username field
         lab1 = tkinter.Label(self.mainFrame,text='Username')
@@ -35,9 +35,8 @@ class loginGUI:
         self.passwordBox = tkinter.Entry(self.mainFrame,show="*")
         self.passwordBox.pack()
         # ok button
-        ok = tkinter.Button(self.mainFrame,text="OK",command=self.verifyLogin)
-        ok.pack()
-        
+        self.ok = tkinter.Button(self.mainFrame,text="OK",command=self.verifyLogin)
+        self.ok.pack()
     # try to login with username and password
     def verifyLogin(self):
         # get information from entry fields
@@ -46,12 +45,14 @@ class loginGUI:
         # login to server
         status = self.chatComm.login(self.username,password)
         if status:
-            # go to main indow
-            tkinter.messagebox.showinfo("Status","Waiting for game to be established, please wait.")
+            # disable widgets
+            self.nameBox.configure(state=tkinter.DISABLED)
+            self.passwordBox.configure(state=tkinter.DISABLED)
+            self.ok.configure(state=tkinter.DISABLED)
+            tkinter.messagebox.showinfo("Status","Please wait for game to be started by host...")
             self.checkForGame()
         else:
-            # destroy the login window and exit
-            self.parent.destroy()
+            tkinter.messagebox.showerror("Error","Wrong username or password. You should be smarter than this to fight the professor.")
     # decode game
     def decodeGame(self,gameInfo):
         newGame = Game(gameInfo[1],gameInfo[4],gameInfo[7])
@@ -83,11 +84,11 @@ class loginGUI:
             info[3] = convertHelper(info[3])
             info[6] = convertHelper(info[6])
             info[9] = convertHelper(info[9])
+            info[11] = convertHelper(info[11])
             info[12] = ast.literal_eval(info[12])
-            print(info)
             if len(info) == 13 and info[0] in ['0','1','2']:
                 self.Game = self.decodeGame(info)
-                gameGUIObj = clientGUI(self.Game,self.chatComm,self.username)
+                clientGUIObj = clientGUI(self.Game,self.chatComm,self.username)
                 self.parent.destroy()
                 return
         self.parent.after(5000,self.checkForGame)
@@ -103,30 +104,36 @@ class clientGUI:
         self.title = "Fight the Professor! By Eric Gao"
         self.bgColor = (255,255,255)
         self.Game = Game
-        if self.Game.p1.name == self.name:
-            self.player = self.Game.p1
-        elif self.Game.p2.name == self.name:
+        if self.Game.p2.name == self.name:
             self.player = self.Game.p2
         else:
             self.player = self.Game.p3
         self.objs = []
+        self.cardDict = {}
+        self.selectedCards = []
         self.chosenLandlord = False
         pygame.init()
         self.run()
     def sendGame(self,mod=0):
         encoded = self.Game.encodeGame(mod)
-        for i in [self.Game.p1.name,self.Game.p2.name,self.Game.p3.name]-[self.name]:
+        target = [self.Game.p1.name,self.Game.p2.name,self.Game.p3.name]
+        target.remove(self.name)
+        for i in target:
             self.chatComm.sendMessage(i,encoded)
     def updateGame(self):
-        updates = self.chatComm.getMail()[0]
-        for i in updates:
-            target = [self.Game.p1.name,self.Game.p2.name,self.Game.p3.name]
-            target.remove(self.name)
-            if i[0] in target:
-                newInfo = i[1].split('#')
-                if newInfo[0] in ['0','1','2']:
-                    self.Game = self.decodeGame(newInfo)
-                    break
+        messages = self.chatComm.getMail()[0]
+        for i in messages:
+            info = i[1].replace('\n','').replace(' ','').split('#')
+            info = info[1:]
+            print(info)
+            info[3] = convertHelper(info[3])
+            info[6] = convertHelper(info[6])
+            info[9] = convertHelper(info[9])
+            info[11] = convertHelper(info[11])
+            info[12] = ast.literal_eval(info[12])
+            if len(info) == 13 and info[0] in ['0','1','2']:
+                self.Game = self.decodeGame(info)
+                return
     def decodeGame(self,gameInfo):
         newGame = Game(gameInfo[1],gameInfo[4],gameInfo[7])
         newGame.p1.identity = gameInfo[2]
@@ -140,76 +147,28 @@ class clientGUI:
         newGame.currentPlayer = gameInfo[10]
         newGame.prevPlay = gameInfo[11]
         newGame.playOrder = gameInfo[12]
+        if newGame.p2.name == self.name:
+            self.player = self.Game.p2
+        else:
+            self.player = self.Game.p3
         return newGame
-    def initGUI(self):
-        self.clock = pygame.time.Clock()
-        self.screen = pygame.display.set_mode((self.width, self.height))
-        self.screen.fill(self.bgColor)
-        # set the title of the window
-        pygame.display.set_caption(self.title)
-        schedule.every(5).seconds.do(self.updateGame)
-        self.updateGame()
-        xStart = 50
-        cardCnt = len(self.player.cards)
-        for card in self.player.cards:
-            cardObj = Card(self.screen,card,xStart,430,50,70)
-            self.objs.append(cardObj)
-            xStart += 700/cardCnt
-        # call for landlord
-        if self.Game.currentPlayer == self.name and self.Game.playOrder.index(self.Game.currentPlayer) == 2:
-            self.confirmIdentity()
-        if self.Game.currentPlayer == self.name:
-            self.passButton = Button(self.screen,100,350,100,50,'Pass', self.passIdentity)
-            self.objs.append(self.passButton)
-            self.confirmButton = Button(self.screen,600,350,100,50,'Be Professor', self.confirmIdentity)
-            self.objs.append(self.confirmButton)
-            myPos = self.Game.playOrder.index(self.name)
-            if myPos == 0:
-                self.prevPlayer = Player(self.screen,self.Game.playOrder[2],50,50,50,50)
-                self.objs.append(self.prevPlayer)
-                self.nextPlayer = Player(self.screen,self.Game.playOrder[1],700,50,50,50)
-                self.objs.append(self.nextPlayer)
-            elif myPos == 1:
-                self.prevPlayer = Player(self.screen,self.Game.playOrder[0],50,50,50,50)
-                self.objs.append(self.prevPlayer)
-                self.nextPlayer = Player(self.screen,self.Game.playOrder[2],700,50,50,50)
-                self.objs.append(self.nextPlayer)
-            else:
-                self.prevPlayer = Player(self.screen,self.Game.playOrder[1],50,50,50,50)
-                self.objs.append(self.prevPlayer)
-                self.nextPlayer = Player(self.screen,self.Game.playOrder[0],700,50,50,50)
-                self.objs.append(self.nextPlayer)
     def confirmIdentity(self):
         self.Game.chooseLandlord(self.player)
+        self.chosenLandlord = True
         self.Game.assignPlayOrder()
-        self.objs.remove(self.confirmButton)
-        self.objs.remove(self.passButton)
-        self.objs.remove(self.prevPlayer)
-        self.objs.remove(self.nextPlayer)
-        self.prevPlayer = Player(self.screen,self.Game.playOrder[2],50,50,50,50)
-        self.objs.append(self.prevPlayer)
-        self.nextPlayer = Player(self.screen,self.Game.playOrder[1],700,50,50,50)
-        self.objs.append(self.nextPlayer)
         self.sendGame()
-        self.initMainGameGUI()
     def passIdentity(self):
-        self.Game.makePlay('')
-        self.objs.remove(self.confirmButton)
-        self.objs.remove(self.passButton)
+        self.Game.makePlay([])
         self.sendGame()
     def selectCard(self,cardVal):
         if cardVal not in self.selectedCards and cardVal in self.player.cards:
             self.selectedCards.append(cardVal)
-            print(f"Selected: {cardVal}")
     def deSelect(self,cardVal):
         if cardVal in self.selectedCards and cardVal in self.player.cards:
             self.selectedCards.remove(cardVal)
-            print(f"Deselected: {cardVal}")
     def confirmCard(self):
-        if self.Game.isValidPlay(self.selectedCards):
+        if self.selectedCards != [] and self.Game.isValidPlay(self.selectedCards):
             self.Game.makePlay(self.selectedCards)
-            self.updateScreen()
-            self.objs.remove(self.confirmButton)
             self.selectedCards = []
             mod = self.Game.checkWin()
             if mod == 1: # current player wins as professor
@@ -227,70 +186,97 @@ class clientGUI:
         else:
             tkinter.Tk().wm_withdraw() 
             tkinter.messagebox.showwarning('Warning','Invalid play!')
+    def passCard(self):
+        if self.selectedCards == []:
+            self.Game.makePlay([])
+            self.sendGame()
     def updateScreen(self):
-        for i in self.objs:
-            if type(i).__name__ == 'Card':
-                del i
-        self.cardDict.clear()
+        # clear everything
+        self.objs.clear()
+        self.updateGame()
+        # update hand cards
+        for i in self.cardDict:
+            if i not in self.player.cards:
+                self.cardDict[i] = None
         xStart = 50
-        cardCnt = len(self.Game.p1.cards)
-        for card in self.Game.p1.cards:
-            cardObj = Card(self.screen,card,xStart,430,50,70,lambda x=card: self.selectCard(x),lambda x=card: self.deSelect(x))
-            self.objs.append(cardObj)
-            self.cardDict[card] = cardObj
+        cardCnt = len(self.player.cards)
+        for card in self.player.cards:
+            if card not in self.cardDict:
+                cardObj = Card(self.screen,card,xStart,430,50,70,lambda x=card: self.selectCard(x),lambda x=card: self.deSelect(x))
+                self.cardDict[card] = cardObj
+            else:
+                cardObj = self.cardDict[card]
+                cardObj.x = xStart
+            if cardObj not in self.objs:
+                self.objs.append(cardObj)
             xStart += 700/cardCnt
         xStart = 350
+        # update played cards
         for card in self.Game.prevPlay:
             prevPlayObj = Card(self.screen,card,xStart,180,50,70)
             self.objs.append(prevPlayObj)
             xStart += 400/cardCnt
-    def initMainGameGUI(self):
-        self.objs.clear()
-        self.selectedCards = []
-        self.confirmButton = Button(self.screen,600,350,100,50,'Confirm Play', self.confirmCard)
-        self.objs.append(self.confirmButton)
+        # update avatars and positions
         myPos = self.Game.playOrder.index(self.name)
         if myPos == 0:
-            self.prevPlayer = Player(self.screen,self.Game.playOrder[2],50,50,50,50)
+            self.prevPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[2]],50,50,50,50)
             self.objs.append(self.prevPlayer)
-            self.nextPlayer = Player(self.screen,self.Game.playOrder[1],700,50,50,50)
+            self.nextPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[1]],700,50,50,50)
             self.objs.append(self.nextPlayer)
         elif myPos == 1:
-            self.prevPlayer = Player(self.screen,self.Game.playOrder[0],50,50,50,50)
+            self.prevPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[0]],50,50,50,50)
             self.objs.append(self.prevPlayer)
-            self.nextPlayer = Player(self.screen,self.Game.playOrder[2],700,50,50,50)
+            self.nextPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[2]],700,50,50,50)
             self.objs.append(self.nextPlayer)
         else:
-            self.prevPlayer = Player(self.screen,self.Game.playOrder[1],50,50,50,50)
+            self.prevPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[1]],50,50,50,50)
             self.objs.append(self.prevPlayer)
-            self.nextPlayer = Player(self.screen,self.Game.playOrder[0],700,50,50,50)
+            self.nextPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[0]],700,50,50,50)
             self.objs.append(self.nextPlayer)
-        xStart = 50
-        cardCnt = len(self.player.cards)
-        self.cardDict = {}
-        for card in self.player.cards:
-            cardObj = Card(self.screen,card,xStart,430,50,70,lambda x=card: self.selectCard(x),lambda x=card: self.deSelect(x))
-            self.cardDict[card] = cardObj
-            self.objs.append(cardObj)
-            xStart += 700/cardCnt
+        # update buttons
+        if self.chosenLandlord and self.Game.currentPlayer == self.name:
+            self.passCardButton = Button(self.screen,100,350,100,50,'Pass turn', self.passCard)
+            self.objs.append(self.passCardButton)
+            self.confirmCardButton = Button(self.screen,600,350,100,50,'Confirm Play', self.confirmCard)
+            self.objs.append(self.confirmCardButton)
+        elif not self.chosenLandlord and self.Game.currentPlayer == self.name:
+            self.passButton = Button(self.screen,100,350,100,50,'Pass', self.passIdentity)
+            self.objs.append(self.passButton)
+            self.confirmButton = Button(self.screen,600,350,100,50,'Be Professor', self.confirmIdentity)
+            self.objs.append(self.confirmButton)
+    def initGUI(self):
+        # set basic variables
+        self.clock = pygame.time.Clock()
+        self.screen = pygame.display.set_mode((self.width, self.height))
+        self.screen.fill(self.bgColor)
+        pygame.display.set_caption(self.title)
+        # update screen
+        self.updateScreen()
     def run(self):
         self.initGUI()
         playing = True
         while playing:
-            time = self.clock.tick(self.fps)
-            #self.timerFired(time)
+            self.screen.fill(self.bgColor)
+            self.clock.tick(self.fps)
+            self.updateScreen()
+            # to show the initial screen
+            for obj in self.objs:
+                obj.process()
             for event in pygame.event.get():
-                if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.type in [pygame.MOUSEBUTTONDOWN,pygame.MOUSEBUTTONUP]:
                     for obj in self.objs:
                         obj.process()
-                elif event.type == pygame.MOUSEBUTTONUP:
-                    for obj in self.objs:
-                        obj.process()
-                elif event.type == pygame.QUIT:
+                if event.type == pygame.QUIT:
                     playing = False
-            if self.chosenLandlord:
-                self.initMainGameGUI()
-            schedule.run_pending()
+            for obj in self.objs:
+                obj.process()
             pygame.display.flip()
-
         pygame.quit()
+
+if __name__ == "__main__":
+    wnd = tkinter.Tk()
+    wnd.geometry("800x600")
+    wnd.title("Fight the Professor!")
+    #wnd.resizable(0,0)
+    loginGUIObj = loginGUI(wnd)
+    wnd.mainloop()

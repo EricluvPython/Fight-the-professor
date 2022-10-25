@@ -21,7 +21,6 @@ class Game:
         self.prevPlayer = ''
         self.prevPlay = []
         self.playOrder = []
-        
     # helper function for sorting card
     def sortHelper(self,x):
             if x[-1] == '0':

@@ -9,9 +9,8 @@ from chatComm import *
 import tkinter.messagebox
 from pygameWidgets import *
 from GameEngine import *
-import time, threading
-import datetime
-import inspect
+import ast
+from utils import convertHelper
 
 class loginGUI:
     def __init__(self,parent):
@@ -133,20 +132,25 @@ class gameGUI:
         self.chatComm.sendMessage(self.Game.p2.name,encoded)
         self.chatComm.sendMessage(self.Game.p3.name,encoded)
     def updateGame(self):
-        updates = self.chatComm.getMail()[0]
-        for i in updates:
-            if i[0] in [self.Game.p2.name,self.Game.p3.name]:
-                newInfo = i[1].split('#')
-                if newInfo[0] in ['0','1','2']:
-                    self.Game = self.decodeGame(newInfo)
-                    break
-        self.chatComm.sendMessage(self.Game.p2,self.Game.encodeGame())
-        self.chatComm.sendMessage(self.Game.p3,self.Game.encodeGame())
+        messages = self.chatComm.getMail()[0]
+        for i in messages:
+            info = i[1].replace('\n','').replace(' ','').split('#')
+            info = info[1:]
+            info[3] = convertHelper(info[3])
+            info[6] = convertHelper(info[6])
+            info[9] = convertHelper(info[9])
+            info[11] = convertHelper(info[11])
+            info[12] = ast.literal_eval(info[12])
+            if len(info) == 13 and info[0] in ['0','1','2']:
+                self.Game = self.decodeGame(info)
+                return
     def decodeGame(self,gameInfo):
         newGame = Game(gameInfo[1],gameInfo[4],gameInfo[7])
         newGame.p1.identity = gameInfo[2]
         newGame.p2.identity = gameInfo[5]
         newGame.p3.identity = gameInfo[8]
+        if gameInfo[2] == 'p' or gameInfo[5] == 'p' or gameInfo[8] == 'p':
+            self.chosenLandlord = True
         newGame.p1.cards = gameInfo[3]
         newGame.p1.cards = gameInfo[6]
         newGame.p1.cards = gameInfo[9]
@@ -185,6 +189,9 @@ class gameGUI:
                 pygame.quit()
             else:
                 self.sendGame(0)
+        else:
+            tkinter.Tk().wm_withdraw() 
+            tkinter.messagebox.showwarning('Warning','Invalid play!')
     def passCard(self):
         if self.selectedCards == []:
             self.Game.makePlay([])
@@ -192,6 +199,7 @@ class gameGUI:
     def updateScreen(self):
         # clear everything
         self.objs.clear()
+        self.updateGame()
         # update hand cards
         for i in self.cardDict:
             if i not in self.Game.p1.cards:
@@ -258,7 +266,6 @@ class gameGUI:
     def run(self):
         self.initGUI()
         playing = True
-        cnt = 0
         while playing:
             self.screen.fill(self.bgColor)
             self.clock.tick(self.fps)
@@ -276,3 +283,11 @@ class gameGUI:
                 obj.process()
             pygame.display.flip()
         pygame.quit()
+
+if __name__ == "__main__":
+    wnd = tkinter.Tk()
+    wnd.geometry("800x600")
+    wnd.title("Fight the Professor!")
+    #wnd.resizable(0,0)
+    loginGUIObj = loginGUI(wnd)
+    wnd.mainloop()

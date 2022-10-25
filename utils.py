@@ -1,4 +1,5 @@
 import collections
+import ast
 
 # return the type of the move
 # pass = 0
@@ -119,3 +120,13 @@ def get_move_type(move):
                 return {'type': 11, 'rank': serial_3[0], 'len': len(serial_3) - 1}
 
     return {'type': 15} # invalid
+
+def convertHelper(s):
+    s = ast.literal_eval(s)
+    for i in range(len(s)):
+        if len(s[i]) > 1:
+            if s[i][-1] == '0':
+                s[i] = s[i][:-2]+' '+s[i][-2:]
+            else:
+                s[i] = s[i][:-1]+' '+s[i][-1]
+    return s
