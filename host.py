@@ -224,7 +224,7 @@ class gameGUI:
             for card in self.Game.prevPlay:
                 prevPlayObj = Card(self.screen,card,xStart,180,50,70)
                 self.objs.append(prevPlayObj)
-                xStart += 400/cardCnt
+                xStart += 200/cardCnt
         # update avatars and positions
         myPos = self.Game.playOrder.index(self.Game.p1.name)
         if myPos == 0:
