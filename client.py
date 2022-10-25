@@ -88,8 +88,8 @@ class loginGUI:
             info[12] = ast.literal_eval(info[12])
             if len(info) == 13 and info[0] in ['0','1','2']:
                 self.Game = self.decodeGame(info)
-                clientGUIObj = clientGUI(self.Game,self.chatComm,self.username)
                 self.parent.destroy()
+                clientGUIObj = clientGUI(self.Game,self.chatComm,self.username)
                 return
         self.parent.after(5000,self.checkForGame)
         
@@ -122,18 +122,19 @@ class clientGUI:
             self.chatComm.sendMessage(i,encoded)
     def updateGame(self):
         messages = self.chatComm.getMail()[0]
-        for i in messages:
-            info = i[1].replace('\n','').replace(' ','').split('#')
-            info = info[1:]
-            print(info)
-            info[3] = convertHelper(info[3])
-            info[6] = convertHelper(info[6])
-            info[9] = convertHelper(info[9])
-            info[11] = convertHelper(info[11])
-            info[12] = ast.literal_eval(info[12])
-            if len(info) == 13 and info[0] in ['0','1','2']:
-                self.Game = self.decodeGame(info)
-                return
+        if messages != []:
+            for i in messages:
+                info = i[1].replace('\n','').replace(' ','').split('#')
+                info = info[1:]
+                print(info)
+                info[3] = convertHelper(info[3])
+                info[6] = convertHelper(info[6])
+                info[9] = convertHelper(info[9])
+                info[11] = convertHelper(info[11])
+                info[12] = ast.literal_eval(info[12])
+                if len(info) == 13 and info[0] in ['0','1','2']:
+                    self.Game = self.decodeGame(info)
+                    return
     def decodeGame(self,gameInfo):
         newGame = Game(gameInfo[1],gameInfo[4],gameInfo[7])
         newGame.p1.identity = gameInfo[2]
@@ -142,8 +143,8 @@ class clientGUI:
         if gameInfo[2] == 'p' or gameInfo[5] == 'p' or gameInfo[8] == 'p':
             self.chosenLandlord = True
         newGame.p1.cards = gameInfo[3]
-        newGame.p1.cards = gameInfo[6]
-        newGame.p1.cards = gameInfo[9]
+        newGame.p2.cards = gameInfo[6]
+        newGame.p3.cards = gameInfo[9]
         newGame.currentPlayer = gameInfo[10]
         newGame.prevPlay = gameInfo[11]
         newGame.playOrder = gameInfo[12]
@@ -210,12 +211,14 @@ class clientGUI:
             if cardObj not in self.objs:
                 self.objs.append(cardObj)
             xStart += 700/cardCnt
-        xStart = 350
         # update played cards
-        for card in self.Game.prevPlay:
-            prevPlayObj = Card(self.screen,card,xStart,180,50,70)
-            self.objs.append(prevPlayObj)
-            xStart += 400/cardCnt
+        xStart = 350
+        cardCnt = len(self.Game.prevPlay)
+        if cardCnt != 0:
+            for card in self.Game.prevPlay:
+                prevPlayObj = Card(self.screen,card,xStart,180,50,70)
+                self.objs.append(prevPlayObj)
+                xStart += 400/cardCnt
         # update avatars and positions
         myPos = self.Game.playOrder.index(self.name)
         if myPos == 0:
@@ -253,6 +256,7 @@ class clientGUI:
         # update screen
         self.updateScreen()
     def run(self):
+        self.updateGame()
         self.initGUI()
         playing = True
         while playing:
