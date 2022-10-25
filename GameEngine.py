@@ -11,7 +11,7 @@ class Game:
         self.colors = ['heart','spade','diamond','club']
         self.nums = ['A','2','3','4','5','6','7','8','9','10','J','Q','K']
         self.specials = ['X','D']
-        self.cardOrder = {'3':1,'4':2,'5':3,'6':4,'7':5,'8':6,'9':7,'0':8,
+        self.cardOrder = {'3':1,'4':2,'5':3,'6':4,'7':5,'8':6,'9':7,'10':8,
         'J':9,'Q':10,'K':11,'A':12,'2':13,'X':14,'D':15}
         self.p1 = player(p1id)
         self.p2 = player(p2id)
@@ -97,7 +97,10 @@ class Game:
     def whichPattern(self,selectedCards):
         cardValues = []
         for i in selectedCards:
-            cardValues.append(self.cardOrder[i[-1]])
+            if i[-1] == '0':
+                cardValues.append(self.cardOrder['10'])
+            else:
+                cardValues.append(self.cardOrder[i[-1]])
         pattern = utils.get_move_type(cardValues)
         return pattern
     # check play validity
