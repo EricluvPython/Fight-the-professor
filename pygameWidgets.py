@@ -115,3 +115,22 @@ class Player:
             self.playerRect.height/2 - self.playerSurf.get_rect().height/2
         ])
         self.screen.blit(self.playerSurface, self.playerRect)
+
+class Text:
+    def __init__(self,screen,text, x, y, width, height):
+        self.text = text
+        self.screen = screen
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        font = pygame.font.SysFont('Arial', 16)
+        self.textSurface = pygame.Surface((self.width, self.height))
+        self.textRect = pygame.Rect(self.x, self.y, self.width, self.height)
+        self.textSurf = font.render(self.text, True, (255, 255, 255))
+    def process(self):
+        self.textSurface.blit(self.textSurf, [
+            self.textRect.width/2 - self.textSurf.get_rect().width/2,
+            self.textRect.height/2 - self.textSurf.get_rect().height/2
+        ])
+        self.screen.blit(self.textSurface, self.textRect)

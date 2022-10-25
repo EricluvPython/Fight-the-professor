@@ -10,7 +10,7 @@ import tkinter.messagebox
 from pygameWidgets import *
 from GameEngine import *
 import ast
-from utils import convertHelper
+from utils import convertHelper,anotherConvertHelper
 
 class loginGUI:
     def __init__(self,parent):
@@ -140,12 +140,20 @@ class gameGUI:
                 info[3] = convertHelper(info[3])
                 info[6] = convertHelper(info[6])
                 info[9] = convertHelper(info[9])
-                info[11] = convertHelper(info[11])
+                info[11] = anotherConvertHelper(info[11])
                 info[12] = ast.literal_eval(info[12])
-                if len(info) == 13 and info[0] in ['0','1','2']:
+                info[13] = convertHelper(info[13])
+                if info[0] in ['0','1','2']:
                     self.Game = self.decodeGame(info)
-                    return
     def decodeGame(self,gameInfo):
+        if gameInfo[0] == '1':
+            tkinter.Tk().wm_withdraw() #to hide the main window
+            tkinter.messagebox.showinfo('Winner','CONGRATS PROFESSOR! KEEP OPPRESSING YOUR STUDENTS!')
+            pygame.quit()
+        elif gameInfo[0] == '2':
+            tkinter.Tk().wm_withdraw() #to hide the main window
+            tkinter.messagebox.showinfo('Winner','CONGRATS STUDENTS! KILL MORE PROFESSORS!')
+            pygame.quit()
         newGame = Game(gameInfo[1],gameInfo[4],gameInfo[7])
         newGame.p1.identity = gameInfo[2]
         newGame.p2.identity = gameInfo[5]
@@ -158,14 +166,17 @@ class gameGUI:
         newGame.currentPlayer = gameInfo[10]
         newGame.prevPlay = gameInfo[11]
         newGame.playOrder = gameInfo[12]
+        newGame.landLordCards = gameInfo[13]
         return newGame
     def confirmIdentity(self):
         self.Game.chooseLandlord(self.Game.p1)
         self.chosenLandlord = True
         self.Game.assignPlayOrder()
+        self.updateScreen()
         self.sendGame()
     def passIdentity(self):
         self.Game.makePlay([])
+        self.updateScreen()
         self.sendGame()
     def selectCard(self,cardVal):
         if cardVal not in self.selectedCards and cardVal in self.Game.p1.cards:
@@ -174,6 +185,7 @@ class gameGUI:
         if cardVal in self.selectedCards and cardVal in self.Game.p1.cards:
             self.selectedCards.remove(cardVal)
     def confirmCard(self):
+        print(self.selectedCards)
         if self.selectedCards != [] and self.Game.isValidPlay(self.selectedCards):
             self.Game.makePlay(self.selectedCards)
             self.selectedCards = []
@@ -190,12 +202,14 @@ class gameGUI:
                 pygame.quit()
             else:
                 self.sendGame(0)
+            self.updateScreen()
         else:
             tkinter.Tk().wm_withdraw() 
             tkinter.messagebox.showwarning('Warning','Invalid play!')
     def passCard(self):
         if self.selectedCards == []:
             self.Game.makePlay([])
+            self.updateScreen()
             self.sendGame()
     def updateScreen(self):
         # clear everything
@@ -219,28 +233,39 @@ class gameGUI:
             xStart += 700/cardCnt
         # update played cards
         xStart = 350
-        cardCnt = len(self.Game.prevPlay)
+        cardCnt = len(self.Game.prevPlay[1])
         if cardCnt != 0:
-            for card in self.Game.prevPlay:
+            for card in self.Game.prevPlay[1]:
                 prevPlayObj = Card(self.screen,card,xStart,180,50,70)
                 self.objs.append(prevPlayObj)
                 xStart += 200/cardCnt
+        # update landlord cards
+        if self.chosenLandlord == True:
+            xStart = 320
+            for card in self.Game.landLordCards:
+                landlordCardObj = Card(self.screen,card,xStart,40,50,70)
+                self.objs.append(landlordCardObj)
+                xStart += 200/3
+        # update current player
+        text = "Current playing: " + self.Game.currentPlayer
+        currentPlayerTextObj = Text(self.screen,text,230,120,350,50)
+        self.objs.append(currentPlayerTextObj)
         # update avatars and positions
         myPos = self.Game.playOrder.index(self.Game.p1.name)
         if myPos == 0:
-            self.prevPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[2]],50,50,50,50)
+            self.prevPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[2]],50,50,50,50,self.chosenLandlord)
             self.objs.append(self.prevPlayer)
-            self.nextPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[1]],700,50,50,50)
+            self.nextPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[1]],700,50,50,50,self.chosenLandlord)
             self.objs.append(self.nextPlayer)
         elif myPos == 1:
-            self.prevPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[0]],50,50,50,50)
+            self.prevPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[0]],50,50,50,50,self.chosenLandlord)
             self.objs.append(self.prevPlayer)
-            self.nextPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[2]],700,50,50,50)
+            self.nextPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[2]],700,50,50,50,self.chosenLandlord)
             self.objs.append(self.nextPlayer)
         else:
-            self.prevPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[1]],50,50,50,50)
+            self.prevPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[1]],50,50,50,50,self.chosenLandlord)
             self.objs.append(self.prevPlayer)
-            self.nextPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[0]],700,50,50,50)
+            self.nextPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[0]],700,50,50,50,self.chosenLandlord)
             self.objs.append(self.nextPlayer)
         # update buttons
         if self.chosenLandlord and self.Game.currentPlayer == self.Game.p1.name:

@@ -122,6 +122,7 @@ def get_move_type(move):
     return {'type': 15} # invalid
 
 def convertHelper(s):
+    print(s)
     s = ast.literal_eval(s)
     for i in range(len(s)):
         if len(s[i]) > 1:
@@ -129,4 +130,14 @@ def convertHelper(s):
                 s[i] = s[i][:-2]+' '+s[i][-2:]
             else:
                 s[i] = s[i][:-1]+' '+s[i][-1]
+    return s
+
+def anotherConvertHelper(s):
+    s = ast.literal_eval(s)
+    for i in range(len(s[1])):
+        if len(s[1][i]) > 1:
+            if s[1][i][-1] == '0':
+                s[1][i] = s[1][i][:-2]+' '+s[1][i][-2:]
+            else:
+                s[1][i] = s[1][i][:-1]+' '+s[1][i][-1]
     return s

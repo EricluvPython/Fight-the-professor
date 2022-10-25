@@ -19,8 +19,9 @@ class Game:
         self.playerDict = {p1id: self.p1, p2id: self.p2, p3id: self.p3}
         self.currentPlayer = ''
         self.prevPlayer = ''
-        self.prevPlay = []
+        self.prevPlay = ['',[]]
         self.playOrder = []
+        self.landLordCards = []
     # helper function for sorting card
     def sortHelper(self,x):
             if x[-1] == '0':
@@ -31,7 +32,7 @@ class Game:
         return f'''#{str(mod)}#{self.p1.name}#{self.p1.identity}#{self.p1.cards}
         #{self.p2.name}#{self.p2.identity}#{self.p2.cards}
         #{self.p3.name}#{self.p3.identity}#{self.p3.cards}
-        #{self.currentPlayer}#{self.prevPlay}#{self.playOrder}'''
+        #{self.currentPlayer}#{self.prevPlay}#{self.playOrder}#{self.landLordCards}'''
     # distribute the initial card
     def shuffleDeck(self):
         self.deck = []
@@ -71,10 +72,21 @@ class Game:
         self.p3.cards.sort(key=lambda x: self.sortHelper(x))
     # assign landlord
     def chooseLandlord(self,player):
-        player.identity = 'p'
-        for card in self.landLordCards:
-            player.cards.append(card)
-        player.cards.sort(key=lambda x: self.sortHelper(x))
+        if player.name == self.p1.name:
+            self.p1.identity = 'p'
+            for card in self.landLordCards:
+                self.p1.cards.append(card)
+            self.p1.cards.sort(key=lambda x: self.sortHelper(x))
+        elif player.name == self.p2.name:
+            self.p2.identity = 'p'
+            for card in self.landLordCards:
+                self.p2.cards.append(card)
+            self.p2.cards.sort(key=lambda x: self.sortHelper(x))
+        elif player.name == self.p3.name:
+            self.p3.identity = 'p'
+            for card in self.landLordCards:
+                self.p3.cards.append(card)
+            self.p3.cards.sort(key=lambda x: self.sortHelper(x))
     # assign play sequence
     def assignPlayOrder(self):
         if self.p1.identity == 'p':
@@ -105,9 +117,10 @@ class Game:
         return pattern
     # check play validity
     def isValidPlay(self,selected):
-        pattern1 = self.whichPattern(self.prevPlay)
+        if self.prevPlay[0] == self.currentPlayer:
+            return True
+        pattern1 = self.whichPattern(self.prevPlay[1])
         pattern2 = self.whichPattern(selected)
-        print(pattern1,pattern2)
         if pattern2['type'] == 15 or pattern1['type'] == 5:
             return False
         elif pattern2['type'] == 5:
@@ -122,9 +135,12 @@ class Game:
                 return False
     # make a play
     def makePlay(self,selectedCards):
-        self.playerDict[self.currentPlayer].playCard(selectedCards)
+        if selectedCards == [] and self.prevPlay != []:
+            pass
+        else:
+            self.playerDict[self.currentPlayer].playCard(selectedCards)
+            self.prevPlay = [self.currentPlayer,selectedCards]
         self.prevPlayer = self.currentPlayer
-        self.prevPlay = selectedCards
         playerIndex = self.playOrder.index(self.currentPlayer)
         if playerIndex == 2:
             self.currentPlayer = self.playOrder[0]
@@ -132,6 +148,7 @@ class Game:
             self.currentPlayer = self.playOrder[playerIndex+1]
     # check who wins
     def checkWin(self):
+        print(self.currentPlayer,self.playerDict[self.currentPlayer].cards,self.playerDict[self.currentPlayer].identity)
         if self.playerDict[self.currentPlayer].cards == []:
             if self.playerDict[self.currentPlayer].identity == 'p':
                 return 1 # player wins as professor
