@@ -148,9 +148,9 @@ class Game:
             self.currentPlayer = self.playOrder[playerIndex+1]
     # check who wins
     def checkWin(self):
-        print(self.currentPlayer,self.playerDict[self.currentPlayer].cards,self.playerDict[self.currentPlayer].identity)
-        if self.playerDict[self.currentPlayer].cards == []:
-            if self.playerDict[self.currentPlayer].identity == 'p':
+        print(self.prevPlayer,self.playerDict[self.prevPlayer].cards)
+        if self.playerDict[self.prevPlayer].cards == []:
+            if self.playerDict[self.prevPlayer].identity == 'p':
                 return 1 # player wins as professor
             else:
                 return 2 # player wins as students

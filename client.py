@@ -163,6 +163,7 @@ class clientGUI:
             self.player = self.Game.p3
         return newGame
     def confirmIdentity(self):
+        self.updateGame()
         if self.Game.p2.name == self.name:
             self.player = self.Game.p2
         else:
@@ -190,12 +191,12 @@ class clientGUI:
             if mod == 1: # current player wins as professor
                 self.sendGame(1)
                 tkinter.Tk().wm_withdraw() #to hide the main window
-                tkinter.messagebox.showinfo('Winner','CONGRATS PROFESSOR! KEEP OPPRESSING YOUR STUDENTS!')
+                tkinter.messagebox.showinfo(f'Winner is: {self.Game.prevPlayer}','CONGRATS PROFESSOR! KEEP OPPRESSING YOUR STUDENTS!')
                 pygame.quit()
             elif mod == 2: # current player wins as student
                 self.sendGame(2)
                 tkinter.Tk().wm_withdraw() #to hide the main window
-                tkinter.messagebox.showinfo('Winner','CONGRATS STUDENTS! KILL MORE PROFESSORS!')
+                tkinter.messagebox.showinfo(f'Winner is: {self.Game.prevPlayer}','CONGRATS STUDENTS! KILL MORE PROFESSORS!')
                 pygame.quit()
             else:
                 self.sendGame(0)

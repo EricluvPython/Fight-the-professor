@@ -122,7 +122,6 @@ def get_move_type(move):
     return {'type': 15} # invalid
 
 def convertHelper(s):
-    print(s)
     s = ast.literal_eval(s)
     for i in range(len(s)):
         if len(s[i]) > 1:

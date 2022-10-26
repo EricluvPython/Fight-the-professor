@@ -185,7 +185,6 @@ class gameGUI:
         if cardVal in self.selectedCards and cardVal in self.Game.p1.cards:
             self.selectedCards.remove(cardVal)
     def confirmCard(self):
-        print(self.selectedCards)
         if self.selectedCards != [] and self.Game.isValidPlay(self.selectedCards):
             self.Game.makePlay(self.selectedCards)
             self.selectedCards = []
@@ -193,12 +192,12 @@ class gameGUI:
             if mod == 1: # current player wins as professor
                 self.sendGame(1)
                 tkinter.Tk().wm_withdraw() #to hide the main window
-                tkinter.messagebox.showinfo('Winner','CONGRATS PROFESSOR! KEEP OPPRESSING YOUR STUDENTS!')
+                tkinter.messagebox.showinfo(f'Winner is: {self.Game.prevPlayer}','CONGRATS PROFESSOR! KEEP OPPRESSING YOUR STUDENTS!')
                 pygame.quit()
             elif mod == 2: # current player wins as student
                 self.sendGame(2)
                 tkinter.Tk().wm_withdraw() #to hide the main window
-                tkinter.messagebox.showinfo('Winner','CONGRATS STUDENTS! KILL MORE PROFESSORS!')
+                tkinter.messagebox.showinfo(f'Winner is: {self.Game.prevPlayer}','CONGRATS STUDENTS! KILL MORE PROFESSORS!')
                 pygame.quit()
             else:
                 self.sendGame(0)
