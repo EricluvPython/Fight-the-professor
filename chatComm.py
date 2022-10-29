@@ -1,22 +1,23 @@
 import socket
 
+
 class chatComm:
     # constructor function. ip address and port number are needed
-    def __init__(self,ipaddress,portnum):
+    def __init__(self, ipaddress, portnum):
         self.ipaddress = ipaddress
         self.portnum = portnum
-        
+
     # esetablish connection to the specified server
     def startConnection(self):
         # construct socket object
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # connect to server
-        self.socket.connect((self.ipaddress,self.portnum))
+        self.socket.connect((self.ipaddress, self.portnum))
         return
-    
+
     # log in to server with username, password, and md5
-    def login(self,username, password):
-        def generateBlock(password,challenge):
+    def login(self, username, password):
+        def generateBlock(password, challenge):
             message = password+challenge
             block = message+'1'
             lenMessage = len(message)
@@ -28,26 +29,26 @@ class chatComm:
                 block += '0'
             block += '0'*(3-len(str(lenMessage)))+str(lenMessage)
             return block
-        
+
         def generateAsciiChunks(block):
             M = []
-            # sum the ascii of every 32 chars 
-            for i in range(0,512,32):
+            # sum the ascii of every 32 chars
+            for i in range(0, 512, 32):
                 cnt = 0
                 chars = block[i:i+32]
                 for char in chars:
                     cnt += ord(char)
                 M.append(cnt)
             return M
-        
-        def leftRotate(x,c):
-            return (x<<c)&0xFFFFFFFF | (x>>(32-c)&0x7FFFFFFF>>(32-c))
+
+        def leftRotate(x, c):
+            return (x << c) & 0xFFFFFFFF | (x >> (32-c) & 0x7FFFFFFF >> (32-c))
 
         def hexHash(M):
-            s = [7,12,17,22,7,12,17,22,7,12,17,22,7,12,17,22,
-                 5,9,14,20,5,9,14,20,5,9,14,20,5,9,14,20,
-                 4,11,16,23,4,11,16,23,4,11,16,23,4,11,16,23,
-                 6,10,15,21,6,10,15,21,6,10,15,21,6,10,15,21]
+            s = [7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
+                 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20,
+                 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23,
+                 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21]
             K = [0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
                  0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501,
                  0x698098d8, 0x8b44f7af, 0xffff5bb1, 0x895cd7be,
@@ -70,44 +71,45 @@ class chatComm:
             D = d0 = 0x10325476
             for i in range(64):
                 if 0 <= i <= 15:
-                    F = (B&C)|((~B)&(D))
-                    F = F&0xFFFFFFFF
+                    F = (B & C) | ((~B) & (D))
+                    F = F & 0xFFFFFFFF
                     g = i
                 elif 16 <= i <= 31:
-                    F = (D&B)|((~D)&C)
-                    F = F&0xFFFFFFFF
-                    g = (5*i+1)%16
+                    F = (D & B) | ((~D) & C)
+                    F = F & 0xFFFFFFFF
+                    g = (5*i+1) % 16
                 elif 32 <= i <= 47:
-                    F = B^C^D
-                    F = F&0xFFFFFFFF
-                    g = (3*i+5)%16
+                    F = B ^ C ^ D
+                    F = F & 0xFFFFFFFF
+                    g = (3*i+5) % 16
                 elif 48 <= i <= 63:
-                    F = C^(B|(~D))
-                    F = F&0xFFFFFFFF
-                    g = (7*i)%16
+                    F = C ^ (B | (~D))
+                    F = F & 0xFFFFFFFF
+                    g = (7*i) % 16
                 dTemp = D
                 D = C
                 C = B
                 B = B+leftRotate((A+F+K[i]+M[g]), s[i])
-                B = B&0xFFFFFFFF
+                B = B & 0xFFFFFFFF
                 A = dTemp
-            a0 = (a0+A)&0xFFFFFFFF
-            b0 = (b0+B)&0xFFFFFFFF
-            c0 = (c0+C)&0xFFFFFFFF
-            d0 = (d0+D)&0xFFFFFFFF
+            a0 = (a0+A) & 0xFFFFFFFF
+            b0 = (b0+B) & 0xFFFFFFFF
+            c0 = (c0+C) & 0xFFFFFFFF
+            d0 = (d0+D) & 0xFFFFFFFF
             result = str(a0)+str(b0)+str(c0)+str(d0)
             return result
 
         # main logic of md5 hashing
-        def md5Hash(password,challenge):
-            block = generateBlock(password,challenge)
+        def md5Hash(password, challenge):
+            block = generateBlock(password, challenge)
             M = generateAsciiChunks(block)
             result = hexHash(M)
             return str(result)
         self.socket.send(b"LOGIN "+username.encode('utf-8')+b'\n')
         challenge = self.socket.recv(1024).decode().split()[2]
-        messageDigest = md5Hash(password,challenge)
-        self.socket.send(b"LOGIN "+(username+" "+messageDigest).encode('utf-8')+b"\n")
+        messageDigest = md5Hash(password, challenge)
+        self.socket.send(
+            b"LOGIN "+(username+" "+messageDigest).encode('utf-8')+b"\n")
         status = self.socket.recv(1024).decode()
         return ("Successful" in status)
 
@@ -124,7 +126,7 @@ class chatComm:
         return data[3:]
 
     # send message to others
-    def sendMessage(self,friend, message):
+    def sendMessage(self, friend, message):
         info = "@sendmsg@"+friend+"@"+message
         size = (5-len(str((len(info)+6))))*'0'+str((len(info)+6))
         data = "@"+size+info
@@ -133,7 +135,7 @@ class chatComm:
         return "ok" in status
 
     # send file to others
-    def sendFile(self,friend, filename):
+    def sendFile(self, friend, filename):
         with open(filename) as f:
             content = ''.join(f.readlines())
         info = "@sendfile@"+friend+"@"+filename+"@"+content
@@ -157,9 +159,9 @@ class chatComm:
         files = []
         for i in range(len(data)):
             if data[i] == "msg":
-                messages.append((data[i+1],data[i+2]))
+                messages.append((data[i+1], data[i+2]))
             elif data[i] == "file":
-                files.append((data[i+1],data[i+2]))
-                with open(data[i+2],'w') as f:
+                files.append((data[i+1], data[i+2]))
+                with open(data[i+2], 'w') as f:
                     f.write(data[i+3])
-        return (messages,files)
+        return (messages, files)
