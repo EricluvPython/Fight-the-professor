@@ -2,7 +2,7 @@ import collections
 import ast
 
 # is_continuous_seq and get_move_type classifies the move
-# inspiration from: DouZero https://github.com/kwai/DouZero/tree/d731ca2ca507f2a53d6ca19a2acdb0b284046d0c
+# inspiration from: DouZero https://github.com/kwai/DouZero
 
 # check if move is a continuous sequence
 

@@ -2,7 +2,6 @@
 ## Version
 V0.6a - fixed major bugs, updated GUI, added comments
 ## Description
-This is my 15-112 Final Project.\
 This is a 3-player online card game developed using python, with dependency on Professor Saquib Razak's chat server.\
 The game rules are identical to those of the famous Chinese card game Dou Di Zhu (斗地主), for more details please check [Wikipedia](https://en.wikipedia.org/wiki/Dou_dizhu).\
 In short, the rules can be summarized as: students rebel their professor and professor oppresses their students, with no hint to Marxism whatsoever.\
@@ -19,3 +18,9 @@ And you've got a chance to be or not to be a professor!
 ## Any issues playing it?
 Please report any bugs and suggestions to me at ```ericgao@cmu.edu```.
 And please enjoy!
+## Disclaimer
+This is an academic project. Do not copy or use any part of the project without consent.\
+Game rules are directly taken from Dou Di Zhu (斗地主) gameplay in China, with some regional rules implemented.\
+Deck images used are from https://code.google.com/archive/p/vector-playing-cards/, with respect of its public distribution and open-source liscence.\
+Professor faces would used with their consent (and I haven't used them).\
+Part of the code are inspired by Douzero: https://github.com/kwai/DouZero
