@@ -164,11 +164,7 @@ class clientGUI:
         return newGame
     def confirmIdentity(self):
         self.updateGame()
-        if self.Game.p2.name == self.name:
-            self.player = self.Game.p2
-        else:
-            self.player = self.Game.p3
-        self.Game.chooseLandlord(self.player)
+        self.Game.chooseLandlord(self.name)
         self.chosenLandlord = True
         self.Game.assignPlayOrder()
         self.updateScreen()

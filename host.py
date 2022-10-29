@@ -169,7 +169,7 @@ class gameGUI:
         newGame.landLordCards = gameInfo[13]
         return newGame
     def confirmIdentity(self):
-        self.Game.chooseLandlord(self.Game.p1)
+        self.Game.chooseLandlord(self.Game.p1.name)
         self.chosenLandlord = True
         self.Game.assignPlayOrder()
         self.updateScreen()

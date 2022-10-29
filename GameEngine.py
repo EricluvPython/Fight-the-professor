@@ -71,22 +71,11 @@ class Game:
         self.p2.cards.sort(key=lambda x: self.sortHelper(x))
         self.p3.cards.sort(key=lambda x: self.sortHelper(x))
     # assign landlord
-    def chooseLandlord(self,player):
-        if player.name == self.p1.name:
-            self.p1.identity = 'p'
-            for card in self.landLordCards:
-                self.p1.cards.append(card)
-            self.p1.cards.sort(key=lambda x: self.sortHelper(x))
-        elif player.name == self.p2.name:
-            self.p2.identity = 'p'
-            for card in self.landLordCards:
-                self.p2.cards.append(card)
-            self.p2.cards.sort(key=lambda x: self.sortHelper(x))
-        elif player.name == self.p3.name:
-            self.p3.identity = 'p'
-            for card in self.landLordCards:
-                self.p3.cards.append(card)
-            self.p3.cards.sort(key=lambda x: self.sortHelper(x))
+    def chooseLandlord(self,name):
+        self.playerDict[name].identity = 'p'
+        for card in self.landLordCards:
+            self.playerDict[name].cards.append(card)
+        self.playerDict[name].cards.sort(key=lambda x: self.sortHelper(x))
     # assign play sequence
     def assignPlayOrder(self):
         if self.p1.identity == 'p':
