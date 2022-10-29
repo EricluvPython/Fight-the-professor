@@ -8,15 +8,18 @@ import utils
 
 class Game:
     def __init__(self,p1id,p2id,p3id):
+        # for generating and comparing cards
         self.colors = ['heart','spade','diamond','club']
         self.nums = ['A','2','3','4','5','6','7','8','9','10','J','Q','K']
         self.specials = ['X','D']
         self.cardOrder = {'3':1,'4':2,'5':3,'6':4,'7':5,'8':6,'9':7,'10':8,
         'J':9,'Q':10,'K':11,'A':12,'2':13,'X':14,'D':15}
+        # player objects and dictionary
         self.p1 = player(p1id)
         self.p2 = player(p2id)
         self.p3 = player(p3id)
         self.playerDict = {p1id: self.p1, p2id: self.p2, p3id: self.p3}
+        # some game states
         self.currentPlayer = ''
         self.prevPlayer = ''
         self.prevPlay = ['',[]]
@@ -33,7 +36,7 @@ class Game:
         #{self.p2.name}#{self.p2.identity}#{self.p2.cards}
         #{self.p3.name}#{self.p3.identity}#{self.p3.cards}
         #{self.currentPlayer}#{self.prevPlay}#{self.playOrder}#{self.landLordCards}'''
-    # distribute the initial card
+    # generate and distribute the initial cards
     def shuffleDeck(self):
         self.deck = []
         for i in self.colors:
@@ -42,7 +45,7 @@ class Game:
         self.deck.append(self.specials[0])
         self.deck.append(self.specials[1])
         random.shuffle(self.deck)
-    # deal the cards
+    # deal the initial cards randomly
     def dealCard(self):
         self.landLordCards = []
         for i in range(3):
@@ -98,7 +101,7 @@ class Game:
     def whichPattern(self,selectedCards):
         cardValues = []
         for i in selectedCards:
-            if i[-1] == '0':
+            if i[-1] == '0': # special case of 10
                 cardValues.append(self.cardOrder['10'])
             else:
                 cardValues.append(self.cardOrder[i[-1]])
@@ -106,16 +109,15 @@ class Game:
         return pattern
     # check play validity
     def isValidPlay(self,selected):
+        selectedCards = selected.sort(key=lambda x: self.sortHelper(x))
         if self.prevPlay[0] == self.currentPlayer:
             return True
         pattern1 = self.whichPattern(self.prevPlay[1])
-        pattern2 = self.whichPattern(selected)
+        pattern2 = self.whichPattern(selectedCards)
         if pattern2['type'] == 15 or pattern1['type'] == 5:
-            return False
-        elif pattern2['type'] == 5:
-            return True
-        elif pattern1['type'] == 0:
-            return True
+            return False # previous kingbomb or current invalid
+        elif pattern2['type'] == 5 or pattern1['type'] == 0:
+            return True # current kingbomb or previous pass
         else:
             if pattern1['type'] == pattern2['type'] and\
                  pattern1['rank'] < pattern2['rank']:
@@ -137,7 +139,6 @@ class Game:
             self.currentPlayer = self.playOrder[playerIndex+1]
     # check who wins
     def checkWin(self):
-        print(self.prevPlayer,self.playerDict[self.prevPlayer].cards)
         if self.playerDict[self.prevPlayer].cards == []:
             if self.playerDict[self.prevPlayer].identity == 'p':
                 return 1 # player wins as professor

@@ -1,4 +1,4 @@
-# GUI
+# Host GUI
 # loginGUI: class for logging into the server and going to mainGUI
 # mainGUI: class for choosing players and go to gameGUI
 # gameGUI: class for the visualization of gaming
@@ -57,7 +57,7 @@ class loginGUI:
     # create the main gui
     def createMainGUI(self):
         mainwnd = tkinter.Tk()
-        mainwnd.title("Chat Client")
+        mainwnd.title("Choose 2 players to play with")
         mainwnd.geometry("450x300")
         mainwnd.resizable(0,0) # makes window size static
         mainGUIObj = mainGUI(mainwnd,self.chatComm,self.username)
@@ -76,30 +76,28 @@ class mainGUI:
         self.gameObjs = {}
         # lists of users, friends, and requests
         self.friends = self.chatComm.getFriends()
-        # labels of respective field
+        # labels of respective field and layout
         self.friendsLab = tkinter.Label(self.mainFrame,text="Choose 2 players to play with")
-        # label layout
         self.friendsLab.grid(row=0,column=0)
-        # three listboxes for respective fields
+        # listbox of friends and layout
         self.friendsList = tkinter.Listbox(self.mainFrame,
                                            selectmode=tkinter.MULTIPLE,
                                            height=10)
-        # listbox layout
         self.friendsList.grid(row=1,column=0)
-        # put all of the data in each field
         for i in self.friends: self.friendsList.insert(tkinter.END,i)
-        # buttons for each field
+        # button for starting game and layout
         self.startGameBtn = tkinter.Button(self.mainFrame,
                                            text="Start Game",
                                            command=self.startGame)
-        # buttons layout
         self.startGameBtn.grid(row=2,column=0)
     
     # select 2 people to play with
     def startGame(self):
         selected = []
+        # get selected people
         for i in self.friendsList.curselection():
             selected.append(self.friendsList.get(i))
+        # start the game
         if len(selected) == 2:
             player1 = self.username
             player2 = selected[0]
@@ -107,19 +105,21 @@ class mainGUI:
             self.parent.destroy()
             game = Game(player1,player2,player3)
             gameGUIObj = gameGUI(game,self.chatComm)
-            self.gameObjs[''.join(selected)] = gameGUIObj
-        else:
+            self.gameObjs[''.join(selected)] = gameGUIObj # not sure why I didn't delete this
+        else: # show error message
             tkinter.messagebox.showerror("Error","Can't you find 2 friends to fight the professor with you?")
 
 
 class gameGUI:
     def __init__(self,Game,chatComm):
+        # main objects initialization
         self.chatComm = chatComm
         self.width = 800
         self.height = 600
         self.fps = 40
         self.title = "Fight the Professor! By Eric Gao"
         self.bgColor = (255,255,255)
+        # game objects initialization
         self.Game = Game
         self.objs = []
         self.chosenLandlord = False
@@ -127,10 +127,12 @@ class gameGUI:
         self.selectedCards = []
         pygame.init()
         self.run()
+    # send the game to clients, mod indicates whether game ended
     def sendGame(self,mod=0):
         encoded = self.Game.encodeGame(mod)
         self.chatComm.sendMessage(self.Game.p2.name,encoded)
         self.chatComm.sendMessage(self.Game.p3.name,encoded)
+    # update current game from received game (if any)
     def updateGame(self):
         messages = self.chatComm.getMail()[0]
         if messages != []:
@@ -145,6 +147,7 @@ class gameGUI:
                 info[13] = convertHelper(info[13])
                 if info[0] in ['0','1','2']:
                     self.Game = self.decodeGame(info)
+    # decode info to a new game object
     def decodeGame(self,gameInfo):
         if gameInfo[0] == '1':
             tkinter.Tk().wm_withdraw() #to hide the main window
@@ -168,22 +171,27 @@ class gameGUI:
         newGame.playOrder = gameInfo[12]
         newGame.landLordCards = gameInfo[13]
         return newGame
+    # confirm professor identity
     def confirmIdentity(self):
         self.Game.chooseLandlord(self.Game.p1.name)
         self.chosenLandlord = True
         self.Game.assignPlayOrder()
         self.updateScreen()
         self.sendGame()
+    # pass professor identity
     def passIdentity(self):
         self.Game.makePlay([])
         self.updateScreen()
         self.sendGame()
+    # select cards
     def selectCard(self,cardVal):
         if cardVal not in self.selectedCards and cardVal in self.Game.p1.cards:
             self.selectedCards.append(cardVal)
+    # deselect cards
     def deSelect(self,cardVal):
         if cardVal in self.selectedCards and cardVal in self.Game.p1.cards:
             self.selectedCards.remove(cardVal)
+    # confirm card play
     def confirmCard(self):
         if self.selectedCards != [] and self.Game.isValidPlay(self.selectedCards):
             self.Game.makePlay(self.selectedCards)
@@ -200,16 +208,18 @@ class gameGUI:
                 tkinter.messagebox.showinfo(f'Winner is: {self.Game.prevPlayer}','CONGRATS STUDENTS! KILL MORE PROFESSORS!')
                 pygame.quit()
             else:
-                self.sendGame(0)
+                self.sendGame(0) # game continues
             self.updateScreen()
-        else:
+        else: # show error message, a bug still exists here
             tkinter.Tk().wm_withdraw() 
             tkinter.messagebox.showwarning('Warning','Invalid play!')
+    # pass the turn
     def passCard(self):
         if self.selectedCards == []:
             self.Game.makePlay([])
             self.updateScreen()
             self.sendGame()
+    # update screen from current game object
     def updateScreen(self):
         # clear everything
         self.objs.clear()
@@ -249,7 +259,7 @@ class gameGUI:
         text = "Current playing: " + self.Game.currentPlayer
         currentPlayerTextObj = Text(self.screen,text,230,120,350,50)
         self.objs.append(currentPlayerTextObj)
-        # update avatars and positions
+        # update avatars and positions and colors
         myPos = self.Game.playOrder.index(self.Game.p1.name)
         if myPos == 0:
             self.prevPlayer = Player(self.screen,self.Game.playerDict[self.Game.playOrder[2]],50,50,50,50,self.chosenLandlord)
@@ -277,6 +287,7 @@ class gameGUI:
             self.objs.append(self.passButton)
             self.confirmButton = Button(self.screen,600,350,100,50,'Be Professor', self.confirmIdentity)
             self.objs.append(self.confirmButton)
+    # initialize game GUI
     def initGUI(self):
         # set basic variables
         self.clock = pygame.time.Clock()
@@ -290,6 +301,7 @@ class gameGUI:
         self.sendGame()
         # update screen
         self.updateScreen()
+    # the main function to be called
     def run(self):
         self.initGUI()
         playing = True
@@ -310,11 +322,11 @@ class gameGUI:
                 obj.process()
             pygame.display.flip()
         pygame.quit()
-
+# start game as host
 if __name__ == "__main__":
     wnd = tkinter.Tk()
     wnd.geometry("800x600")
     wnd.title("Fight the Professor!")
-    #wnd.resizable(0,0)
+    wnd.resizable(0,0)
     loginGUIObj = loginGUI(wnd)
     wnd.mainloop()

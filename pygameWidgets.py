@@ -3,6 +3,7 @@
 # Card: class for creating an interactive card object that can be clicked and unclicked
 # Deck: class for creating a container of a bunch of cards, while recording what each card is
 # Player: class for creating a player avatar object that can be used to distinguish professor and student
+# Text: class for adding a label object to show some game info
 
 import pygame
 
@@ -101,6 +102,7 @@ class Player:
         self.height = height
         font = pygame.font.SysFont('Arial', 16)
         self.playerSurface = pygame.Surface((self.width, self.height))
+        self.playerSurface.fill((225,225,225))
         self.playerRect = pygame.Rect(self.x, self.y, self.width, self.height)
         if assignedIdentity:
             if self.player.identity == 's':
@@ -115,6 +117,7 @@ class Player:
             self.playerRect.height/2 - self.playerSurf.get_rect().height/2
         ])
         self.screen.blit(self.playerSurface, self.playerRect)
+        
 
 class Text:
     def __init__(self,screen,text, x, y, width, height):

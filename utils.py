@@ -1,32 +1,20 @@
 import collections
 import ast
 
-# return the type of the move
-# pass = 0
-# single = 1
-# pair = 2
-# triple = 3
-# bomb = 4
-# king bomb = 5
-# 3+1 = 6
-# 3+2 = 7
-# serial single = 8
-# serial pair = 9
-# serial triple = 10
-# serial 3+1 = 11
-# serial 3+2 = 12
-# 4+2 = 13
-# 4+2*2 = 14
-# invalid = 15
+# is_continuous_seq and get_move_type classifies the move
+# inspiration from: DouZero https://github.com/kwai/DouZero/tree/d731ca2ca507f2a53d6ca19a2acdb0b284046d0c
+
+# check if move is a continuous sequence
+def is_continuous_seq(move):
+    i = 0
+    while i < len(move) - 1:
+        if move[i+1] - move[i] != 1:
+            return False
+        i += 1
+    return True
+
+# main function of getting the move type and rank
 def get_move_type(move):
-    # check if move is a continuous sequence
-    def is_continuous_seq(move):
-        i = 0
-        while i < len(move) - 1:
-            if move[i+1] - move[i] != 1:
-                return False
-            i += 1
-        return True
     move_size = len(move)
     move_dict = collections.Counter(move)
 
@@ -121,6 +109,7 @@ def get_move_type(move):
 
     return {'type': 15} # invalid
 
+# helper function for converting remote game data
 def convertHelper(s):
     s = ast.literal_eval(s)
     for i in range(len(s)):
@@ -131,6 +120,7 @@ def convertHelper(s):
                 s[i] = s[i][:-1]+' '+s[i][-1]
     return s
 
+# another helper function for converting different game data
 def anotherConvertHelper(s):
     s = ast.literal_eval(s)
     for i in range(len(s[1])):
