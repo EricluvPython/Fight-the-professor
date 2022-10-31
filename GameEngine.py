@@ -119,7 +119,7 @@ class Game:
     # check play validity
 
     def isValidPlay(self, selected):
-        selectedCards = selected.sort(key=lambda x: self.sortHelper(x))
+        selectedCards = sorted(selected,key=lambda x: self.sortHelper(x))
         if self.prevPlay[0] == self.currentPlayer:
             return True
         pattern1 = self.whichPattern(self.prevPlay[1])

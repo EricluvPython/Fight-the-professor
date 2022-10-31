@@ -4,6 +4,7 @@
 # gameGUI: class for the visualization of gaming
 
 import tkinter
+from tkinter.tix import IMAGE
 import pygame
 from chatComm import *
 import tkinter.messagebox
@@ -11,6 +12,7 @@ from pygameWidgets import *
 from GameEngine import *
 import ast
 from utils import convertHelper, anotherConvertHelper
+from PIL import ImageTk, Image
 
 
 class loginGUI:
@@ -280,32 +282,59 @@ class gameGUI:
                 self.objs.append(landlordCardObj)
                 xStart += 200/3
         # update current player
-        text = "Current playing: " + self.Game.currentPlayer
+        text = f"Current playing: {self.Game.currentPlayer}"
         currentPlayerTextObj = Text(self.screen, text, 230, 120, 350, 50)
         self.objs.append(currentPlayerTextObj)
-        # update avatars and positions and colors
+        # update avatars
         myPos = self.Game.playOrder.index(self.Game.p1.name)
         if myPos == 0:
             self.prevPlayer = Player(
-                self.screen, self.Game.playerDict[self.Game.playOrder[2]], 50, 50, 50, 50, self.chosenLandlord)
+                self.screen, self.Game.playerDict[self.Game.playOrder[2]], 50, 60, 50, 20, self.chosenLandlord)
             self.objs.append(self.prevPlayer)
             self.nextPlayer = Player(
-                self.screen, self.Game.playerDict[self.Game.playOrder[1]], 700, 50, 50, 50, self.chosenLandlord)
+                self.screen, self.Game.playerDict[self.Game.playOrder[1]], 700, 60, 50, 20, self.chosenLandlord)
             self.objs.append(self.nextPlayer)
+            self.prevImg = Img(
+                self.screen,self.Game.playerDict[self.Game.playOrder[2]],50,10,50,50)
+            self.objs.append(self.prevImg)
+            self.afterImg = Img(
+                self.screen,self.Game.playerDict[self.Game.playOrder[1]],700,10,50,50)
+            self.objs.append(self.afterImg)
+            self.myImg = Img(
+                self.screen,self.Game.playerDict[self.Game.playOrder[0]],370,520,60,60)
+            self.objs.append(self.myImg)
         elif myPos == 1:
             self.prevPlayer = Player(
-                self.screen, self.Game.playerDict[self.Game.playOrder[0]], 50, 50, 50, 50, self.chosenLandlord)
+                self.screen, self.Game.playerDict[self.Game.playOrder[0]], 50, 60, 50, 20, self.chosenLandlord)
             self.objs.append(self.prevPlayer)
             self.nextPlayer = Player(
-                self.screen, self.Game.playerDict[self.Game.playOrder[2]], 700, 50, 50, 50, self.chosenLandlord)
+                self.screen, self.Game.playerDict[self.Game.playOrder[2]], 700, 60, 50, 20, self.chosenLandlord)
             self.objs.append(self.nextPlayer)
+            self.prevImg = Img(
+                self.screen,self.Game.playerDict[self.Game.playOrder[0]],50,10,50,50)
+            self.objs.append(self.prevImg)
+            self.afterImg = Img(
+                self.screen,self.Game.playerDict[self.Game.playOrder[2]],700,10,50,50)
+            self.objs.append(self.afterImg)
+            self.myImg = Img(
+                self.screen,self.Game.playerDict[self.Game.playOrder[1]],370,520,60,60)
+            self.objs.append(self.myImg)
         else:
             self.prevPlayer = Player(
-                self.screen, self.Game.playerDict[self.Game.playOrder[1]], 50, 50, 50, 50, self.chosenLandlord)
+                self.screen, self.Game.playerDict[self.Game.playOrder[1]], 50, 60, 50, 20, self.chosenLandlord)
             self.objs.append(self.prevPlayer)
             self.nextPlayer = Player(
-                self.screen, self.Game.playerDict[self.Game.playOrder[0]], 700, 50, 50, 50, self.chosenLandlord)
+                self.screen, self.Game.playerDict[self.Game.playOrder[0]], 700, 60, 50, 20, self.chosenLandlord)
             self.objs.append(self.nextPlayer)
+            self.prevImg = Img(
+                self.screen,self.Game.playerDict[self.Game.playOrder[1]],50,10,50,50)
+            self.objs.append(self.prevImg)
+            self.afterImg = Img(
+                self.screen,self.Game.playerDict[self.Game.playOrder[0]],700,10,50,50)
+            self.objs.append(self.afterImg)
+            self.myImg = Img(
+                self.screen,self.Game.playerDict[self.Game.playOrder[2]],370,520,60,60)
+            self.objs.append(self.myImg)
         # update buttons
         if self.chosenLandlord and self.Game.currentPlayer == self.Game.p1.name:
             self.passCardButton = Button(
@@ -365,6 +394,6 @@ if __name__ == "__main__":
     wnd = tkinter.Tk()
     wnd.geometry("800x600")
     wnd.title("Fight the Professor!")
-    wnd.resizable(0, 0)
+    #wnd.resizable(0, 0)
     loginGUIObj = loginGUI(wnd)
     wnd.mainloop()

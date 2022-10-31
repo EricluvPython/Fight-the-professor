@@ -148,3 +148,27 @@ class Text:
             self.textRect.height/2 - self.textSurf.get_rect().height/2
         ])
         self.screen.blit(self.textSurface, self.textRect)
+
+class Img:
+    def __init__(self, screen, player, x, y, width, height):
+        self.screen = screen
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.identity = player.identity
+        if self.identity == 'p':
+            self.image = pygame.image.load(f"./imgs/professors/saquib.jpg")
+        else:
+            self.image = pygame.image.load(f"./imgs/students/tartan.png")
+        self.image = pygame.transform.scale(self.image, (self.width, self.height))
+        self.image.convert()
+        self.imgSurface = pygame.Surface((self.width, self.height))
+        self.imgRect = pygame.Rect(self.x, self.y, self.width, self.height)
+
+    def process(self):
+        self.imgSurface.blit(self.image, [
+            self.imgRect.width/2 - self.imgSurface.get_rect().width/2,
+            self.imgRect.height/2 - self.imgSurface.get_rect().height/2
+        ])
+        self.screen.blit(self.imgSurface, self.imgRect)
