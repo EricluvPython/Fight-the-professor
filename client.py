@@ -336,6 +336,21 @@ class clientGUI:
             self.myImg = Img(
                 self.screen,self.Game.playerDict[self.Game.playOrder[2]],370,510,60,60)
             self.objs.append(self.myImg)
+        # update buttons
+        if self.chosenLandlord and self.Game.currentPlayer == self.name:
+            self.passCardButton = Button(
+                self.screen, 100, 350, 100, 50, 'Pass turn', self.passCard)
+            self.objs.append(self.passCardButton)
+            self.confirmCardButton = Button(
+                self.screen, 600, 350, 100, 50, 'Confirm Play', self.confirmCard)
+            self.objs.append(self.confirmCardButton)
+        elif not self.chosenLandlord and self.Game.currentPlayer == self.name:
+            self.passButton = Button(
+                self.screen, 100, 350, 100, 50, 'Pass', self.passIdentity)
+            self.objs.append(self.passButton)
+            self.confirmButton = Button(
+                self.screen, 600, 350, 100, 50, 'Be Professor', self.confirmIdentity)
+            self.objs.append(self.confirmButton)
     # initialize game GUI
 
     def initGUI(self):
