@@ -109,6 +109,8 @@ class clientGUI:
         self.fps = 20
         self.title = "Fight the Professor! By Eric Gao"
         self.bgColor = (255, 255, 255)
+        self.bg = pygame.image.load('./imgs/bg/tartanbg.png')
+        self.bg = pygame.transform.scale(self.bg, (self.width, self.height))
         # initialize game object
         self.Game = Game
         if self.Game.p2.name == self.name:
@@ -358,6 +360,7 @@ class clientGUI:
         playing = True
         while playing:
             self.screen.fill(self.bgColor)
+            self.screen.blit(self.bg, (0,0))
             self.clock.tick(self.fps)
             self.updateScreen()
             # to show the initial screen
