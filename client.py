@@ -225,7 +225,7 @@ class clientGUI:
             else:
                 self.sendGame(0)  # game continues
             self.updateScreen()
-        else:  # show error
+        elif self.Game.prevPlay == []:  # show error
             tkinter.Tk().wm_withdraw()
             tkinter.messagebox.showwarning('Warning', 'Invalid play!')
     # pass turn
@@ -281,67 +281,61 @@ class clientGUI:
         myPos = self.Game.playOrder.index(self.name)
         if myPos == 0:
             self.prevPlayer = Player(
-                self.screen, self.Game.playerDict[self.Game.playOrder[2]], 50, 50, 50, 20, self.chosenLandlord)
+                self.screen, self.Game.playerDict[self.Game.playOrder[2]], 50, 70, 60, 20, self.chosenLandlord)
             self.objs.append(self.prevPlayer)
             self.nextPlayer = Player(
-                self.screen, self.Game.playerDict[self.Game.playOrder[1]], 700, 50, 50, 20, self.chosenLandlord)
+                self.screen, self.Game.playerDict[self.Game.playOrder[1]], 700, 70, 60, 20, self.chosenLandlord)
             self.objs.append(self.nextPlayer)
+            self.myPlayer = Player(
+                self.screen, self.Game.playerDict[self.Game.playOrder[0]], 370, 570, 60, 20, self.chosenLandlord)
+            self.objs.append(self.myPlayer)
             self.prevImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[2]],50,10,50,50)
+                self.screen,self.Game.playerDict[self.Game.playOrder[2]],50,10,60,60)
             self.objs.append(self.prevImg)
             self.afterImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[1]],700,10,50,50)
+                self.screen,self.Game.playerDict[self.Game.playOrder[1]],700,10,60,60)
             self.objs.append(self.afterImg)
             self.myImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[0]],370,520,60,60)
+                self.screen,self.Game.playerDict[self.Game.playOrder[0]],370,510,60,60)
             self.objs.append(self.myImg)
         elif myPos == 1:
             self.prevPlayer = Player(
-                self.screen, self.Game.playerDict[self.Game.playOrder[0]], 50, 50, 50, 20, self.chosenLandlord)
+                self.screen, self.Game.playerDict[self.Game.playOrder[0]], 50, 70, 60, 20, self.chosenLandlord)
             self.objs.append(self.prevPlayer)
             self.nextPlayer = Player(
-                self.screen, self.Game.playerDict[self.Game.playOrder[2]], 700, 50, 50, 20, self.chosenLandlord)
+                self.screen, self.Game.playerDict[self.Game.playOrder[2]], 700, 70, 60, 20, self.chosenLandlord)
             self.objs.append(self.nextPlayer)
+            self.myPlayer = Player(
+                self.screen, self.Game.playerDict[self.Game.playOrder[1]], 370, 570, 60, 20, self.chosenLandlord)
+            self.objs.append(self.myPlayer)
             self.prevImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[0]],50,10,50,50)
+                self.screen,self.Game.playerDict[self.Game.playOrder[0]],50,10,60,60)
             self.objs.append(self.prevImg)
             self.afterImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[2]],700,10,50,50)
+                self.screen,self.Game.playerDict[self.Game.playOrder[2]],700,10,60,60)
             self.objs.append(self.afterImg)
             self.myImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[1]],370,520,60,60)
+                self.screen,self.Game.playerDict[self.Game.playOrder[1]],370,510,60,60)
             self.objs.append(self.myImg)
         else:
             self.prevPlayer = Player(
-                self.screen, self.Game.playerDict[self.Game.playOrder[1]], 50, 50, 50, 20, self.chosenLandlord)
+                self.screen, self.Game.playerDict[self.Game.playOrder[1]], 50, 70, 60, 20, self.chosenLandlord)
             self.objs.append(self.prevPlayer)
             self.nextPlayer = Player(
-                self.screen, self.Game.playerDict[self.Game.playOrder[0]], 700, 50, 50, 20, self.chosenLandlord)
+                self.screen, self.Game.playerDict[self.Game.playOrder[0]], 700, 70, 60, 20, self.chosenLandlord)
             self.objs.append(self.nextPlayer)
+            self.myPlayer = Player(
+                self.screen, self.Game.playerDict[self.Game.playOrder[2]], 370, 570, 60, 20, self.chosenLandlord)
+            self.objs.append(self.myPlayer)
             self.prevImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[1]],50,10,50,50)
+                self.screen,self.Game.playerDict[self.Game.playOrder[1]],50,10,60,60)
             self.objs.append(self.prevImg)
             self.afterImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[0]],700,10,50,50)
+                self.screen,self.Game.playerDict[self.Game.playOrder[0]],700,10,60,60)
             self.objs.append(self.afterImg)
             self.myImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[2]],370,520,60,60)
+                self.screen,self.Game.playerDict[self.Game.playOrder[2]],370,510,60,60)
             self.objs.append(self.myImg)
-        # update buttons
-        if self.chosenLandlord and self.Game.currentPlayer == self.name:
-            self.passCardButton = Button(
-                self.screen, 100, 350, 100, 50, 'Pass turn', self.passCard)
-            self.objs.append(self.passCardButton)
-            self.confirmCardButton = Button(
-                self.screen, 600, 350, 100, 50, 'Confirm Play', self.confirmCard)
-            self.objs.append(self.confirmCardButton)
-        elif not self.chosenLandlord and self.Game.currentPlayer == self.name:
-            self.passButton = Button(
-                self.screen, 100, 350, 100, 50, 'Pass', self.passIdentity)
-            self.objs.append(self.passButton)
-            self.confirmButton = Button(
-                self.screen, 600, 350, 100, 50, 'Be Professor', self.confirmIdentity)
-            self.objs.append(self.confirmButton)
     # initialize game GUI
 
     def initGUI(self):

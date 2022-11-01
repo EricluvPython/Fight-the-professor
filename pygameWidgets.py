@@ -107,7 +107,7 @@ class Player:
         self.y = y
         self.width = width
         self.height = height
-        font = pygame.font.SysFont('Arial', 16)
+        font = pygame.font.SysFont('Arial', 18)
         self.playerSurface = pygame.Surface((self.width, self.height))
         self.playerSurface.fill((225, 225, 225))
         self.playerRect = pygame.Rect(self.x, self.y, self.width, self.height)
@@ -137,7 +137,7 @@ class Text:
         self.y = y
         self.width = width
         self.height = height
-        font = pygame.font.SysFont('Arial', 16)
+        font = pygame.font.SysFont('Arial', 18)
         self.textSurface = pygame.Surface((self.width, self.height))
         self.textRect = pygame.Rect(self.x, self.y, self.width, self.height)
         self.textSurf = font.render(self.text, True, (255, 255, 255))
