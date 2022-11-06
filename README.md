@@ -8,13 +8,16 @@ In short, the rules can be summarized as: students rebel their professor and pro
 The two students are in a team against the one professor in game. Whichever team has a first player that plays all of their handcards win.\
 What cards you can play depends on the previous card play. For this part please refer to Wikipedia.
 ## How to play it?
-Ofc the first thing is to familiarize youself with the basic rules of the game.\
-Clone this repository, then find two of your friends that are on the chat server to also clone it. Be kind to them if they're not your friend.\
+*Ofc the first thing is to familiarize youself with the basic rules of the game. This is important for you to enjoy the game!*\
+Clone this repository, then find two of your friends that are on the chat server to also clone it.\
 Decide on who's the host of the game, and the other two as participants.\
-The host would open and run the ```host.py``` file, and the participants would open and run the ```client.py``` file.\
+Both the host and the clients would open and run the ```main.py``` file.\
 The host needs to log in to the server with username and password, and then select the names of the other two players to start a game with.\
 The other two players simply needs to login with username and password.\
-And you've got a chance to be or not to be a professor!
+And you've got a chance to be or not to be a professor!\
+\
+If you don't like playing with humans (which is sometimes an excuse for not having friends), you could fight 2 AIs!\
+To play with AI, open and run the ```main.py``` file and select Single Player mode. And have fun!
 ## Any issues playing it?
 Please report any bugs and suggestions to me at ```ericgao@cmu.edu```.
 And please enjoy!
