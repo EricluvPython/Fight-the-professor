@@ -159,6 +159,21 @@ class Game:
         else:
             return 0  # not ended yet
 
+    def createAI(self,name2,name3):
+        self.p2 = AI(name2)
+        self.p3 = AI(name3)
+        self.playerDict[name2] = self.p2
+        self.playerDict[name3] = self.p3
+
+    def AIMakePlay(self,name):
+        AIplayer = self.playerDict[name]
+        moves = AIplayer.getAllMoves()
+        possibleMoves = []
+        for i in moves:
+            if self.isValidPlay(i):
+                possibleMoves.append(i)
+        move = random.choice(possibleMoves)
+        self.makePlay(move)
 
 class player:
     def __init__(self, name):
@@ -170,3 +185,17 @@ class player:
     def playCard(self, selectedCards):
         for i in selectedCards:
             self.cards.remove(i)
+
+class AI:
+    def __init__(self, name):
+        self.name = name
+        self.identity = 's'
+        self.cards = []
+    # make a play
+
+    def playCard(self, selectedCards):
+        for i in selectedCards:
+            self.cards.remove(i)
+    
+    def getAllMoves(self):
+        return utils.MovesGener(self.cards).gen_moves()

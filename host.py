@@ -165,16 +165,6 @@ class gameGUI:
     # decode info to a new game object
 
     def decodeGame(self, gameInfo):
-        if gameInfo[0] == '1':
-            tkinter.Tk().wm_withdraw()  # to hide the main window
-            tkinter.messagebox.showinfo(
-                'Winner', 'CONGRATS PROFESSOR! KEEP OPPRESSING YOUR STUDENTS!')
-            pygame.quit()
-        elif gameInfo[0] == '2':
-            tkinter.Tk().wm_withdraw()  # to hide the main window
-            tkinter.messagebox.showinfo(
-                'Winner', 'CONGRATS STUDENTS! KILL MORE PROFESSORS!')
-            pygame.quit()
         newGame = Game(gameInfo[1], gameInfo[4], gameInfo[7])
         newGame.p1.identity = gameInfo[2]
         newGame.p2.identity = gameInfo[5]
@@ -188,6 +178,28 @@ class gameGUI:
         newGame.prevPlay = gameInfo[11]
         newGame.playOrder = gameInfo[12]
         newGame.landLordCards = gameInfo[13]
+        if gameInfo[0] == '1':
+            if newGame.p1.name == 'p':
+                tkinter.Tk().wm_withdraw()  # to hide the main window
+                tkinter.messagebox.showinfo(
+                    f'Winner is: {newGame.prevPlayer}', 'CONGRATS PROFESSOR! KEEP OPPRESSING YOUR STUDENTS!')
+                pygame.quit()
+            else:
+                tkinter.Tk().wm_withdraw()  # to hide the main window
+                tkinter.messagebox.showinfo(
+                    f'Winner is: {newGame.prevPlayer}', 'YOU LOST! FIGHT HARDER AGAINST YOUR PROFESSOR!')
+                pygame.quit()
+        elif gameInfo[0] == '2':
+            if newGame.p1.identity == 's':
+                tkinter.Tk().wm_withdraw()  # to hide the main window
+                tkinter.messagebox.showinfo(
+                    f'Winner is: {newGame.prevPlayer}', 'CONGRATS STUDENTS! KILL MORE PROFESSORS!')
+                pygame.quit()
+            else:
+                tkinter.Tk().wm_withdraw()  # to hide the main window
+                tkinter.messagebox.showinfo(
+                    f'Winner is: {newGame.prevPlayer}', 'YOU LOST! BECOME BETTER AT BEING AN EVIL PROFESSOR!')
+                pygame.quit()
         return newGame
     # confirm professor identity
 
@@ -222,22 +234,34 @@ class gameGUI:
             mod = self.Game.checkWin()
             if mod == 1:  # current player wins as professor
                 self.sendGame(1)
-                tkinter.Tk().wm_withdraw()  # to hide the main window
-                tkinter.messagebox.showinfo(
-                    f'Winner is: {self.Game.prevPlayer}', 'CONGRATS PROFESSOR! KEEP OPPRESSING YOUR STUDENTS!')
-                pygame.quit()
+                if self.Game.p1.identity == 'p':
+                    tkinter.Tk().wm_withdraw()  # to hide the main window
+                    tkinter.messagebox.showinfo(
+                        f'Winner is: {self.Game.prevPlayer}', 'CONGRATS PROFESSOR! KEEP OPPRESSING YOUR STUDENTS!')
+                    pygame.quit()
+                else:
+                    tkinter.Tk().wm_withdraw()  # to hide the main window
+                    tkinter.messagebox.showinfo(
+                        f'Winner is: {self.Game.prevPlayer}', 'YOU LOST! FIGHT HARDER AGAINST YOUR PROFESSOR!')
+                    pygame.quit()
             elif mod == 2:  # current player wins as student
                 self.sendGame(2)
-                tkinter.Tk().wm_withdraw()  # to hide the main window
-                tkinter.messagebox.showinfo(
-                    f'Winner is: {self.Game.prevPlayer}', 'CONGRATS STUDENTS! KILL MORE PROFESSORS!')
-                pygame.quit()
+                if self.Game.p1.identity == 's':
+                    tkinter.Tk().wm_withdraw()  # to hide the main window
+                    tkinter.messagebox.showinfo(
+                        f'Winner is: {self.Game.prevPlayer}', 'CONGRATS STUDENTS! KILL MORE PROFESSORS!')
+                    pygame.quit()
+                else:
+                    tkinter.Tk().wm_withdraw()  # to hide the main window
+                    tkinter.messagebox.showinfo(
+                        f'Winner is: {self.Game.prevPlayer}', 'YOU LOST! BECOME BETTER AT BEING AN EVIL PROFESSOR!')
+                    pygame.quit()
             else:
                 self.sendGame(0)  # game continues
-            self.updateScreen()
-        elif self.Game.prevPlay == []:  # show error message, a bug still exists here
+        elif self.Game.prevPlay == []:  # show error message
             tkinter.Tk().wm_withdraw()
             tkinter.messagebox.showwarning('Warning', 'Invalid play!')
+        self.updateScreen()
     # pass the turn
 
     def passCard(self):
