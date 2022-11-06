@@ -8,12 +8,13 @@ from chatComm import *
 import tkinter.messagebox
 from pygameWidgets import *
 from GameEngine import *
+import time
 
 
 class singleGUI:
-    def __init__(self, Game, name):
+    def __init__(self, Game):
         # initialize main parameters
-        self.name = name
+        self.name = Game.p1.name
         self.width = 800
         self.height = 600
         self.fps = 20
@@ -23,14 +24,15 @@ class singleGUI:
         self.bg = pygame.transform.scale(self.bg, (self.width, self.height))
         # initialize game object
         self.Game = Game
-        if self.Game.p2.name == self.name:
-            self.player = self.Game.p2
-        else:
-            self.player = self.Game.p3
+        self.Game.p2 = AI(self.Game.p2.name)
+        self.Game.p3 = AI(self.Game.p3.name)
+        self.Game.playerDict = {self.Game.p1.name: self.Game.p1, self.Game.p2.name: self.Game.p2, self.Game.p3.name: self.Game.p3}
+        self.player = self.Game.p1
         self.objs = []
         self.cardDict = {}
         self.selectedCards = []
         self.chosenLandlord = False
+        self.prevPlayTime = time.time()
         pygame.init()
         self.run()
     # confirm proofessor identity
@@ -39,11 +41,13 @@ class singleGUI:
         self.Game.chooseLandlord(self.name)
         self.chosenLandlord = True
         self.Game.assignPlayOrder()
+        self.prevPlayTime = time.time()
         self.updateScreen()
     # pass professor identity
 
     def passIdentity(self):
         self.Game.makePlay([])
+        self.prevPlayTime = time.time()
         self.updateScreen()
     # select cards
 
@@ -72,6 +76,7 @@ class singleGUI:
                 tkinter.messagebox.showinfo(
                     f'Winner is: {self.Game.prevPlayer}', 'CONGRATS STUDENTS! KILL MORE PROFESSORS!')
                 pygame.quit()
+            self.prevPlayTime = time.time()
             self.updateScreen()
         elif self.Game.prevPlay == []:  # show error
             tkinter.Tk().wm_withdraw()
@@ -81,6 +86,7 @@ class singleGUI:
     def passCard(self):
         if self.selectedCards == []:
             self.Game.makePlay([])
+            self.prevPlayTime = time.time()
             self.updateScreen()
     # update screen from game object
 
@@ -202,9 +208,14 @@ class singleGUI:
     def initGUI(self):
         # set basic variables
         self.clock = pygame.time.Clock()
+        self.prevPlayTime = time.time()
         self.screen = pygame.display.set_mode((self.width, self.height))
         self.screen.fill(self.bgColor)
         pygame.display.set_caption(self.title)
+        # initialize game object
+        self.Game.assignPlayOrder()
+        self.Game.shuffleDeck()
+        self.Game.dealCard()
         # update screen
         self.updateScreen()
     # main function to be called
@@ -217,6 +228,21 @@ class singleGUI:
             self.screen.blit(self.bg, (0,0))
             self.clock.tick(self.fps)
             self.updateScreen()
+            if time.time() - self.prevPlayTime > 3:
+                if self.Game.currentPlayer == 'AI1':
+                    if self.chosenLandlord:
+                        self.Game.AIMakePlay('AI1',self.chosenLandlord)
+                    else:
+                        self.Game.AIMakePlay('AI1',self.chosenLandlord)
+                        self.chosenLandlord = True
+                    self.prevPlayTime = time.time()
+                elif self.Game.currentPlayer == 'AI2':
+                    if self.chosenLandlord:
+                        self.Game.AIMakePlay('AI2',self.chosenLandlord)
+                    else:
+                        self.Game.AIMakePlay('AI2',self.chosenLandlord)
+                        self.chosenLandlord = True
+                    self.prevPlayTime = time.time()
             # to show the initial screen
             for obj in self.objs:
                 obj.process()
@@ -238,5 +264,6 @@ if __name__ == "__main__":
     wnd.geometry("800x600")
     wnd.title("Fight the Professor!")
     wnd.resizable(0, 0)
-    singleGUIObj = singleGUI(wnd)
+    game = Game('human','AI1','AI2')
+    singleGUIObj = singleGUI(game)
     wnd.mainloop()

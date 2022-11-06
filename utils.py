@@ -151,8 +151,17 @@ class MovesGener(object):
     """
     This is for generating the possible combinations
     """
+
     def __init__(self, cards_list):
-        self.cards_list = cards_list
+        RealCard2EnvCard = {'3': 3, '4': 4, '5': 5, '6': 6, '7': 7,
+                    '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12,
+                    'K': 13, 'A': 14, '2': 17, 'X': 20, 'D': 30}
+        self.cards_list = []
+        for i in cards_list:
+            if i[-1] == '0':
+                self.cards_list.append(RealCard2EnvCard['10'])
+            else:
+                self.cards_list.append(RealCard2EnvCard[i[-1]])
         self.cards_dict = collections.defaultdict(int)
 
         for i in self.cards_list:

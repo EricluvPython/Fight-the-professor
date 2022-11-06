@@ -165,15 +165,27 @@ class Game:
         self.playerDict[name2] = self.p2
         self.playerDict[name3] = self.p3
 
-    def AIMakePlay(self,name):
+    def AIMakePlay(self,name,chosenLandLord):
         AIplayer = self.playerDict[name]
-        moves = AIplayer.getAllMoves()
-        possibleMoves = []
-        for i in moves:
-            if self.isValidPlay(i):
-                possibleMoves.append(i)
-        move = random.choice(possibleMoves)
-        self.makePlay(move)
+        if chosenLandLord:
+            moves = AIplayer.getAllMoves()
+            possibleMoves = []
+            for move in moves:
+                realcards = []
+                for card in move:
+                    for hand in AIplayer.cards:
+                        if hand[-1] == card[-1] and hand not in realcards:
+                            realcards.append(hand)
+                if self.isValidPlay(realcards):
+                    possibleMoves.append(realcards)
+            try:
+                move = random.choice(possibleMoves)
+            except IndexError:
+                move = []
+            self.makePlay(move)
+        else:
+            self.chooseLandlord(name)
+            self.assignPlayOrder()
 
 class player:
     def __init__(self, name):
@@ -198,4 +210,14 @@ class AI:
             self.cards.remove(i)
     
     def getAllMoves(self):
-        return utils.MovesGener(self.cards).gen_moves()
+        envmoves = utils.MovesGener(self.cards).gen_moves()
+        EnvCard2RealCard = {3: '3', 4: '4', 5: '5', 6: '6', 7: '7',
+                    8: '8', 9: '9', 10: '10', 11: 'J', 12: 'Q',
+                    13: 'K', 14: 'A', 17: '2', 20: 'X', 30: 'D'}
+        realmoves = []
+        for move in envmoves:
+            realmove = []
+            for card in move:
+                realmove.append(EnvCard2RealCard[card])
+            realmoves.append(realmove)
+        return realmoves
