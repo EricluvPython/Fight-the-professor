@@ -178,10 +178,8 @@ class Game:
                             realcards.append(hand)
                 if self.isValidPlay(realcards):
                     possibleMoves.append(realcards)
-            try:
-                move = random.choice(possibleMoves)
-            except IndexError:
-                move = []
+            possibleMoves.append([])
+            move = random.choice(possibleMoves)
             self.makePlay(move)
         else:
             self.chooseLandlord(name)
