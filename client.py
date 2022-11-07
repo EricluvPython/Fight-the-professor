@@ -147,6 +147,10 @@ class clientGUI:
                 info[13] = convertHelper(info[13])
                 if info[0] in ['0', '1', '2']:
                     self.Game = self.decodeGame(info)
+        if self.Game.p2.name == self.name:
+            self.player = self.Game.p2
+        else:
+            self.player = self.Game.p3
     # decode game info into new game object
 
     def decodeGame(self, gameInfo):
