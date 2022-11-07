@@ -26,7 +26,8 @@ class singleGUI:
         self.Game = Game
         self.Game.p2 = AI(self.Game.p2.name)
         self.Game.p3 = AI(self.Game.p3.name)
-        self.Game.playerDict = {self.Game.p1.name: self.Game.p1, self.Game.p2.name: self.Game.p2, self.Game.p3.name: self.Game.p3}
+        self.Game.playerDict = {self.Game.p1.name: self.Game.p1,
+                                self.Game.p2.name: self.Game.p2, self.Game.p3.name: self.Game.p3}
         self.player = self.Game.p1
         self.objs = []
         self.cardDict = {}
@@ -142,13 +143,13 @@ class singleGUI:
                 self.screen, self.Game.playerDict[self.Game.playOrder[0]], 370, 570, 60, 20, self.chosenLandlord)
             self.objs.append(self.myPlayer)
             self.prevImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[2]],50,10,60,60)
+                self.screen, self.Game.playerDict[self.Game.playOrder[2]], 50, 10, 60, 60)
             self.objs.append(self.prevImg)
             self.afterImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[1]],700,10,60,60)
+                self.screen, self.Game.playerDict[self.Game.playOrder[1]], 700, 10, 60, 60)
             self.objs.append(self.afterImg)
             self.myImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[0]],370,510,60,60)
+                self.screen, self.Game.playerDict[self.Game.playOrder[0]], 370, 510, 60, 60)
             self.objs.append(self.myImg)
         elif myPos == 1:
             self.prevPlayer = Player(
@@ -161,13 +162,13 @@ class singleGUI:
                 self.screen, self.Game.playerDict[self.Game.playOrder[1]], 370, 570, 60, 20, self.chosenLandlord)
             self.objs.append(self.myPlayer)
             self.prevImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[0]],50,10,60,60)
+                self.screen, self.Game.playerDict[self.Game.playOrder[0]], 50, 10, 60, 60)
             self.objs.append(self.prevImg)
             self.afterImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[2]],700,10,60,60)
+                self.screen, self.Game.playerDict[self.Game.playOrder[2]], 700, 10, 60, 60)
             self.objs.append(self.afterImg)
             self.myImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[1]],370,510,60,60)
+                self.screen, self.Game.playerDict[self.Game.playOrder[1]], 370, 510, 60, 60)
             self.objs.append(self.myImg)
         else:
             self.prevPlayer = Player(
@@ -180,13 +181,13 @@ class singleGUI:
                 self.screen, self.Game.playerDict[self.Game.playOrder[2]], 370, 570, 60, 20, self.chosenLandlord)
             self.objs.append(self.myPlayer)
             self.prevImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[1]],50,10,60,60)
+                self.screen, self.Game.playerDict[self.Game.playOrder[1]], 50, 10, 60, 60)
             self.objs.append(self.prevImg)
             self.afterImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[0]],700,10,60,60)
+                self.screen, self.Game.playerDict[self.Game.playOrder[0]], 700, 10, 60, 60)
             self.objs.append(self.afterImg)
             self.myImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[2]],370,510,60,60)
+                self.screen, self.Game.playerDict[self.Game.playOrder[2]], 370, 510, 60, 60)
             self.objs.append(self.myImg)
         # update buttons
         if self.chosenLandlord and self.Game.currentPlayer == self.name:
@@ -225,22 +226,22 @@ class singleGUI:
         playing = True
         while playing:
             self.screen.fill(self.bgColor)
-            self.screen.blit(self.bg, (0,0))
+            self.screen.blit(self.bg, (0, 0))
             self.clock.tick(self.fps)
             self.updateScreen()
             if time.time() - self.prevPlayTime > 3:
                 if self.Game.currentPlayer == 'AI1':
                     if self.chosenLandlord:
-                        self.Game.AIMakePlay('AI1',self.chosenLandlord)
+                        self.Game.AIMakePlay('AI1', self.chosenLandlord)
                     else:
-                        self.Game.AIMakePlay('AI1',self.chosenLandlord)
+                        self.Game.AIMakePlay('AI1', self.chosenLandlord)
                         self.chosenLandlord = True
                     self.prevPlayTime = time.time()
                 elif self.Game.currentPlayer == 'AI2':
                     if self.chosenLandlord:
-                        self.Game.AIMakePlay('AI2',self.chosenLandlord)
+                        self.Game.AIMakePlay('AI2', self.chosenLandlord)
                     else:
-                        self.Game.AIMakePlay('AI2',self.chosenLandlord)
+                        self.Game.AIMakePlay('AI2', self.chosenLandlord)
                         self.chosenLandlord = True
                     self.prevPlayTime = time.time()
             # to show the initial screen
@@ -264,6 +265,6 @@ if __name__ == "__main__":
     wnd.geometry("800x600")
     wnd.title("Fight the Professor!")
     wnd.resizable(0, 0)
-    game = Game('human','AI1','AI2')
+    game = Game('human', 'AI1', 'AI2')
     singleGUIObj = singleGUI(game)
     wnd.mainloop()

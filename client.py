@@ -318,19 +318,19 @@ class clientGUI:
                 self.screen, self.Game.playerDict[self.Game.playOrder[0]], 370, 570, 60, 20, self.chosenLandlord)
             self.objs.append(self.myPlayer)
             self.prevImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[2]],50,10,60,60)
+                self.screen, self.Game.playerDict[self.Game.playOrder[2]], 50, 10, 60, 60)
             self.objs.append(self.prevImg)
             self.afterImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[1]],700,10,60,60)
+                self.screen, self.Game.playerDict[self.Game.playOrder[1]], 700, 10, 60, 60)
             self.objs.append(self.afterImg)
             self.myImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[0]],370,510,60,60)
+                self.screen, self.Game.playerDict[self.Game.playOrder[0]], 370, 510, 60, 60)
             self.objs.append(self.myImg)
             self.prevCardCnt = Text(
-                self.screen,str(len(self.Game.playerDict[self.Game.playOrder[2]].cards)),70,90,20,20)
+                self.screen, str(len(self.Game.playerDict[self.Game.playOrder[2]].cards)), 70, 90, 20, 20)
             self.objs.append(self.prevCardCnt)
             self.afterCardCnt = Text(
-                self.screen,str(len(self.Game.playerDict[self.Game.playOrder[1]].cards)),720,90,20,20)
+                self.screen, str(len(self.Game.playerDict[self.Game.playOrder[1]].cards)), 720, 90, 20, 20)
             self.objs.append(self.afterCardCnt)
         elif myPos == 1:
             self.prevPlayer = Player(
@@ -343,19 +343,19 @@ class clientGUI:
                 self.screen, self.Game.playerDict[self.Game.playOrder[1]], 370, 570, 60, 20, self.chosenLandlord)
             self.objs.append(self.myPlayer)
             self.prevImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[0]],50,10,60,60)
+                self.screen, self.Game.playerDict[self.Game.playOrder[0]], 50, 10, 60, 60)
             self.objs.append(self.prevImg)
             self.afterImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[2]],700,10,60,60)
+                self.screen, self.Game.playerDict[self.Game.playOrder[2]], 700, 10, 60, 60)
             self.objs.append(self.afterImg)
             self.myImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[1]],370,510,60,60)
+                self.screen, self.Game.playerDict[self.Game.playOrder[1]], 370, 510, 60, 60)
             self.objs.append(self.myImg)
             self.prevCardCnt = Text(
-                self.screen,str(len(self.Game.playerDict[self.Game.playOrder[0]].cards)),70,90,20,20)
+                self.screen, str(len(self.Game.playerDict[self.Game.playOrder[0]].cards)), 70, 90, 20, 20)
             self.objs.append(self.prevCardCnt)
             self.afterCardCnt = Text(
-                self.screen,str(len(self.Game.playerDict[self.Game.playOrder[2]].cards)),720,90,20,20)
+                self.screen, str(len(self.Game.playerDict[self.Game.playOrder[2]].cards)), 720, 90, 20, 20)
             self.objs.append(self.afterCardCnt)
         else:
             self.prevPlayer = Player(
@@ -368,19 +368,19 @@ class clientGUI:
                 self.screen, self.Game.playerDict[self.Game.playOrder[2]], 370, 570, 60, 20, self.chosenLandlord)
             self.objs.append(self.myPlayer)
             self.prevImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[1]],50,10,60,60)
+                self.screen, self.Game.playerDict[self.Game.playOrder[1]], 50, 10, 60, 60)
             self.objs.append(self.prevImg)
             self.afterImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[0]],700,10,60,60)
+                self.screen, self.Game.playerDict[self.Game.playOrder[0]], 700, 10, 60, 60)
             self.objs.append(self.afterImg)
             self.myImg = Img(
-                self.screen,self.Game.playerDict[self.Game.playOrder[2]],370,510,60,60)
+                self.screen, self.Game.playerDict[self.Game.playOrder[2]], 370, 510, 60, 60)
             self.objs.append(self.myImg)
             self.prevCardCnt = Text(
-                self.screen,str(len(self.Game.playerDict[self.Game.playOrder[1]].cards)),70,90,20,20)
+                self.screen, str(len(self.Game.playerDict[self.Game.playOrder[1]].cards)), 70, 90, 20, 20)
             self.objs.append(self.prevCardCnt)
             self.afterCardCnt = Text(
-                self.screen,str(len(self.Game.playerDict[self.Game.playOrder[0]].cards)),720,90,20,20)
+                self.screen, str(len(self.Game.playerDict[self.Game.playOrder[0]].cards)), 720, 90, 20, 20)
             self.objs.append(self.afterCardCnt)
         # update buttons
         if self.chosenLandlord and self.Game.currentPlayer == self.name:
@@ -415,7 +415,7 @@ class clientGUI:
         playing = True
         while playing:
             self.screen.fill(self.bgColor)
-            self.screen.blit(self.bg, (0,0))
+            self.screen.blit(self.bg, (0, 0))
             self.clock.tick(self.fps)
             self.updateScreen()
             # to show the initial screen

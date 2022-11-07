@@ -1,6 +1,6 @@
 # Fight the landlord!
 ## Version
-V1.0b - finished all features, added main menu
+V1.1b - added counter function, enhanced AI performance
 ## Description
 This is a 3-player online card game developed using python, with dependency on Professor Saquib Razak's chat server.\
 The game rules are identical to those of the famous Chinese card game Dou Di Zhu (斗地主), for more details please check [Wikipedia](https://en.wikipedia.org/wiki/Dou_dizhu).\

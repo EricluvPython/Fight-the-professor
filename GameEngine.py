@@ -119,7 +119,7 @@ class Game:
     # check play validity
 
     def isValidPlay(self, selected):
-        selectedCards = sorted(selected,key=lambda x: self.sortHelper(x))
+        selectedCards = sorted(selected, key=lambda x: self.sortHelper(x))
         if self.prevPlay[0] == self.currentPlayer:
             return True
         pattern1 = self.whichPattern(self.prevPlay[1])
@@ -159,13 +159,13 @@ class Game:
         else:
             return 0  # not ended yet
 
-    def createAI(self,name2,name3):
+    def createAI(self, name2, name3):
         self.p2 = AI(name2)
         self.p3 = AI(name3)
         self.playerDict[name2] = self.p2
         self.playerDict[name3] = self.p3
 
-    def AIMakePlay(self,name,chosenLandLord):
+    def AIMakePlay(self, name, chosenLandLord):
         AIplayer = self.playerDict[name]
         if chosenLandLord:
             moves = AIplayer.getAllMoves()
@@ -185,6 +185,7 @@ class Game:
             self.chooseLandlord(name)
             self.assignPlayOrder()
 
+
 class player:
     def __init__(self, name):
         self.name = name
@@ -196,6 +197,7 @@ class player:
         for i in selectedCards:
             self.cards.remove(i)
 
+
 class AI:
     def __init__(self, name):
         self.name = name
@@ -206,12 +208,12 @@ class AI:
     def playCard(self, selectedCards):
         for i in selectedCards:
             self.cards.remove(i)
-    
+
     def getAllMoves(self):
         envmoves = utils.MovesGener(self.cards).gen_moves()
         EnvCard2RealCard = {3: '3', 4: '4', 5: '5', 6: '6', 7: '7',
-                    8: '8', 9: '9', 10: '10', 11: 'J', 12: 'Q',
-                    13: 'K', 14: 'A', 17: '2', 20: 'X', 30: 'D'}
+                            8: '8', 9: '9', 10: '10', 11: 'J', 12: 'Q',
+                            13: 'K', 14: 'A', 17: '2', 20: 'X', 30: 'D'}
         realmoves = []
         for move in envmoves:
             realmove = []
