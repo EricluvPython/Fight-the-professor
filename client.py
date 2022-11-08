@@ -452,6 +452,7 @@ class clientGUI:
                 obj.process()
             pygame.display.flip()
         pygame.quit()
+        exit()
 
 
 # start game as client

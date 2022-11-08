@@ -164,6 +164,12 @@ class singleGUI:
             self.myImg = Img(
                 self.screen, self.Game.playerDict[self.Game.playOrder[0]], 370, 510, 60, 60)
             self.objs.append(self.myImg)
+            self.prevCardCnt = Text(
+                self.screen, str(len(self.Game.playerDict[self.Game.playOrder[2]].cards)), 70, 90, 20, 20)
+            self.objs.append(self.prevCardCnt)
+            self.afterCardCnt = Text(
+                self.screen, str(len(self.Game.playerDict[self.Game.playOrder[1]].cards)), 720, 90, 20, 20)
+            self.objs.append(self.afterCardCnt)
         elif myPos == 1:
             self.prevPlayer = Player(
                 self.screen, self.Game.playerDict[self.Game.playOrder[0]], 50, 70, 60, 20, self.chosenLandlord)
@@ -183,6 +189,12 @@ class singleGUI:
             self.myImg = Img(
                 self.screen, self.Game.playerDict[self.Game.playOrder[1]], 370, 510, 60, 60)
             self.objs.append(self.myImg)
+            self.prevCardCnt = Text(
+                self.screen, str(len(self.Game.playerDict[self.Game.playOrder[0]].cards)), 70, 90, 20, 20)
+            self.objs.append(self.prevCardCnt)
+            self.afterCardCnt = Text(
+                self.screen, str(len(self.Game.playerDict[self.Game.playOrder[2]].cards)), 720, 90, 20, 20)
+            self.objs.append(self.afterCardCnt)
         else:
             self.prevPlayer = Player(
                 self.screen, self.Game.playerDict[self.Game.playOrder[1]], 50, 70, 60, 20, self.chosenLandlord)
@@ -202,6 +214,12 @@ class singleGUI:
             self.myImg = Img(
                 self.screen, self.Game.playerDict[self.Game.playOrder[2]], 370, 510, 60, 60)
             self.objs.append(self.myImg)
+            self.prevCardCnt = Text(
+                self.screen, str(len(self.Game.playerDict[self.Game.playOrder[1]].cards)), 70, 90, 20, 20)
+            self.objs.append(self.prevCardCnt)
+            self.afterCardCnt = Text(
+                self.screen, str(len(self.Game.playerDict[self.Game.playOrder[0]].cards)), 720, 90, 20, 20)
+            self.objs.append(self.afterCardCnt)
         # update buttons
         if self.chosenLandlord and self.Game.currentPlayer == self.name:
             self.passCardButton = Button(
@@ -270,6 +288,7 @@ class singleGUI:
                 obj.process()
             pygame.display.flip()
         pygame.quit()
+        exit()
 
 
 # start game as single player mode

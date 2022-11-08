@@ -460,6 +460,7 @@ class gameGUI:
                 obj.process()
             pygame.display.flip()
         pygame.quit()
+        exit()
 
 
 # start game as host
