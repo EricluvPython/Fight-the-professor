@@ -1,13 +1,27 @@
-# pygame widgets
-# Button: class for creating an interactive button object that performs functions when clicked
-# Card: class for creating an interactive card object that can be clicked and unclicked
-# Deck: class for creating a container of a bunch of cards, while recording what each card is
-# Player: class for creating a player avatar object that can be used to distinguish professor and student
-# Text: class for adding a label object to show some game info
+'''
+pygameWidgets description
+Button Class: class for creating an interactive button object that performs functions when clicked
+    __init__: takes the host screen, x and y positions, width and height, the text on button, function to be called when clicked, and if one press only
+    process: renders the button on screen, detects mouse clicks, and calls functions if needed
+Card Class: class for creating an interactive card object that can be clicked and unclicked
+    __init__: takes the host screen, the card type, x and y positions, width and height, function to be called when clicked, and called when clicked again
+    process: renders the card on screen, detects mouse clicks, and calls functions if needed
+Player Class: class for creating a player avatar object that can be used to distinguish professor and student
+    __init__: takes the host screen, the player object, x and y positions, width and height, and whether identity is assigned
+    process: renders the player avatar on screen based on the player object
+Text Class: class for adding a label object to show some game info
+    __init__: takes the host screen, the text, x and y positions, width and height
+    process: renders the text on screen
+Img Class: class for showing an image on the screen
+    __init__: takes the host screen, the player object, x and y positions, width and height
+    process: renders the image on screen based on player identity
+'''
+
 
 import pygame
 
 
+# Button class
 class Button():
     def __init__(self, screen, x, y, width, height, buttonText='Button', onclickFunction=lambda: print("Not assigned function"), onePress=False):
         self.screen = screen
@@ -51,6 +65,7 @@ class Button():
         pygame.draw.rect(self.screen, (0, 0, 0), self.buttonRect, 2)
 
 
+# Card class
 class Card:
     def __init__(self, screen, cardType, x, y, width, height, onclickFunction=lambda: print("Not assigned function"), cancelFuction=lambda: print("Not assigned function")):
         self.screen = screen
@@ -99,6 +114,7 @@ class Card:
         pygame.draw.rect(self.screen, (0, 0, 0), self.cardRect, 2)
 
 
+# Player class
 class Player:
     def __init__(self, screen, playerObj, x, y, width, height, assignedIdentity=False):
         self.player = playerObj
@@ -129,6 +145,7 @@ class Player:
         self.screen.blit(self.playerSurface, self.playerRect)
 
 
+# Text class
 class Text:
     def __init__(self, screen, text, x, y, width, height):
         self.text = text
@@ -149,6 +166,8 @@ class Text:
         ])
         self.screen.blit(self.textSurface, self.textRect)
 
+
+# Img class
 class Img:
     def __init__(self, screen, player, x, y, width, height):
         self.screen = screen
@@ -161,7 +180,8 @@ class Img:
             self.image = pygame.image.load(f"./imgs/professors/saquib.jpg")
         else:
             self.image = pygame.image.load(f"./imgs/students/tartan.png")
-        self.image = pygame.transform.scale(self.image, (self.width, self.height))
+        self.image = pygame.transform.scale(
+            self.image, (self.width, self.height))
         self.image.convert()
         self.imgSurface = pygame.Surface((self.width, self.height))
         self.imgRect = pygame.Rect(self.x, self.y, self.width, self.height)

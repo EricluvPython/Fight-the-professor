@@ -1,12 +1,34 @@
-# Game Engine
-# Game: a class that represents the state and progress of the game
-# it contains all players and their cards, and the cards played on field
-# initialize game -> shuffle deck -> distribute card -> choose landlord -> {{check validity -> play card} -> check if anyone won -> next player}
+'''
+GameEngine.py description
+Game Class: class that represents the state and progress of the game
+    __init__: takes three player names/ids and initializes the game info
+    sortHelper: helper function for sorting poker cards by returning virtual value
+    encodeGame: takes optional game status (ongoing, professor win, student win) and encode game object as a string
+    shuffleDeck: creates and shuffles the initial deck
+    dealCard: deals the card to players 
+    chooseLandlord: takes in the player name and makes the player the professor
+    assignPlayOrder: assigns the play order
+    whichPattern: identifies which card pattern and rank is played
+    isValidPlay: checks if the selected play is a valid play
+    makePlay: takes in selected cards and the current player plays the cards
+    checkWin: checks if anyone won
+    createAI: takes in 2 names and create 2 AI players
+    AIMakePlay: the selected AI plays a card or calls for landlord depending on chosenLandLord
+player Class: class for a player in the game
+    __init__: takes a name and creates the object
+    playCard: removes card from the player
+AI Class: class for an AI player in the game
+    __init__: takes a name and creates the object
+    playCard: removes card from the AI player
+    getAllMoves: return all possible moves that the AI could make
+'''
+
 
 import random
 import utils
 
 
+# class for the Game object
 class Game:
     def __init__(self, p1id, p2id, p3id):
         # for generating and comparing cards
@@ -27,21 +49,21 @@ class Game:
         self.prevPlay = ['', []]
         self.playOrder = []
         self.landLordCards = []
-    # helper function for sorting card
 
+    # helper function for sorting card
     def sortHelper(self, x):
         if x[-1] == '0':
             return self.cardOrder['10']
         return self.cardOrder[x[-1]]
-    # encode game to a message
 
+    # encode game to a message
     def encodeGame(self, mod=0):
         return f'''#{str(mod)}#{self.p1.name}#{self.p1.identity}#{self.p1.cards}
         #{self.p2.name}#{self.p2.identity}#{self.p2.cards}
         #{self.p3.name}#{self.p3.identity}#{self.p3.cards}
         #{self.currentPlayer}#{self.prevPlay}#{self.playOrder}#{self.landLordCards}'''
-    # generate and distribute the initial cards
 
+    # generate and distribute the initial cards
     def shuffleDeck(self):
         self.deck = []
         for i in self.colors:
@@ -50,8 +72,8 @@ class Game:
         self.deck.append(self.specials[0])
         self.deck.append(self.specials[1])
         random.shuffle(self.deck)
-    # deal the initial cards randomly
 
+    # deal the initial cards randomly
     def dealCard(self):
         self.landLordCards = []
         for i in range(3):
@@ -79,15 +101,15 @@ class Game:
         self.p1.cards.sort(key=lambda x: self.sortHelper(x))
         self.p2.cards.sort(key=lambda x: self.sortHelper(x))
         self.p3.cards.sort(key=lambda x: self.sortHelper(x))
-    # assign landlord
 
+    # assign landlord
     def chooseLandlord(self, name):
         self.playerDict[name].identity = 'p'
         for card in self.landLordCards:
             self.playerDict[name].cards.append(card)
         self.playerDict[name].cards.sort(key=lambda x: self.sortHelper(x))
-    # assign play sequence
 
+    # assign play sequence
     def assignPlayOrder(self):
         if self.p1.identity == 'p':
             self.playOrder = [self.p2.name, self.p3.name]
@@ -105,8 +127,8 @@ class Game:
             self.playOrder = [self.p1.name, self.p2.name, self.p3.name]
             random.shuffle(self.playOrder)
         self.currentPlayer = self.playOrder[0]
-    # identify pattern of played card
 
+    # identify pattern of played card
     def whichPattern(self, selectedCards):
         cardValues = []
         for i in selectedCards:
@@ -116,8 +138,8 @@ class Game:
                 cardValues.append(self.cardOrder[i[-1]])
         pattern = utils.get_move_type(cardValues)
         return pattern
-    # check play validity
 
+    # check play validity
     def isValidPlay(self, selected):
         selectedCards = sorted(selected, key=lambda x: self.sortHelper(x))
         if self.prevPlay[0] == self.currentPlayer:
@@ -134,8 +156,8 @@ class Game:
                 return True
             else:
                 return False
-    # make a play
 
+    # make a play
     def makePlay(self, selectedCards):
         if selectedCards == [] and self.prevPlay != []:
             pass
@@ -148,8 +170,8 @@ class Game:
             self.currentPlayer = self.playOrder[0]
         else:
             self.currentPlayer = self.playOrder[playerIndex+1]
-    # check who wins
 
+    # check who wins
     def checkWin(self):
         if self.playerDict[self.prevPlayer].cards == []:
             if self.playerDict[self.prevPlayer].identity == 'p':
@@ -159,12 +181,14 @@ class Game:
         else:
             return 0  # not ended yet
 
+    # create AI players
     def createAI(self, name2, name3):
         self.p2 = AI(name2)
         self.p3 = AI(name3)
         self.playerDict[name2] = self.p2
         self.playerDict[name3] = self.p3
 
+    # AI makes a play
     def AIMakePlay(self, name, chosenLandLord):
         AIplayer = self.playerDict[name]
         if chosenLandLord:
@@ -186,29 +210,32 @@ class Game:
             self.assignPlayOrder()
 
 
+# class for a game player
 class player:
     def __init__(self, name):
         self.name = name
         self.identity = 's'
         self.cards = []
-    # make a play
 
+    # make a play
     def playCard(self, selectedCards):
         for i in selectedCards:
             self.cards.remove(i)
 
 
+# class for an AI player
 class AI:
     def __init__(self, name):
         self.name = name
         self.identity = 's'
         self.cards = []
-    # make a play
 
+    # make a play
     def playCard(self, selectedCards):
         for i in selectedCards:
             self.cards.remove(i)
 
+    # get all possible moves
     def getAllMoves(self):
         envmoves = utils.MovesGener(self.cards).gen_moves()
         EnvCard2RealCard = {3: '3', 4: '4', 5: '5', 6: '6', 7: '7',

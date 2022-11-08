@@ -1,10 +1,31 @@
-# Host GUI
-# loginGUI: class for logging into the server and going to mainGUI
-# mainGUI: class for choosing players and go to gameGUI
-# gameGUI: class for the visualization of gaming
+'''
+host.py description
+loginGUI Class: class for creating the login window
+    __init__: takes the parent tkinter window, sets a login screen
+    verifyLogin: sends login request to server using the user input of username and password
+    decodeGame: takes received game info and decode it into a game object
+    checkForGame: periodically check for incoming game info on server, and start a game window if detected
+mainGUI Class: class for creating the player selection window
+    __init__: takes the parent tkinter window, chatComm object, and username, and creates the window
+    startGame: start game with selected players
+gameGUI Class: class for creating the game window
+    __init__: takes game object, chatComm object, and the username for login, initializes the objects and GUI
+    sendGame: takes game status (ongoing, professor won, or student won) and send the game info to the other players
+    updateGame: update the current game object with new game information
+    decodeGame: takes game info and decode it to game object
+    confirmIdentity: confirm the identity as a professor
+    passIdentity: pass the chance of being a professor
+    selectCard: mark a card object as selected
+    deselectCard: deselect an already selected card
+    confirmCard: confirm a card play
+    passCard: pass a turn
+    updateScreen: update game screen using game object
+    initGUI: intialize pygame GUI and game object
+    run: runs the pygame window and everything that needs to be run
+This file can be directly called to create a host window
+'''
 
 import tkinter
-from tkinter.tix import IMAGE
 import pygame
 from chatComm import *
 import tkinter.messagebox
@@ -12,9 +33,8 @@ from pygameWidgets import *
 from GameEngine import *
 import ast
 from utils import convertHelper, anotherConvertHelper
-import time
 
-
+# class for the login window
 class loginGUI:
     def __init__(self, parent):
         # tkinter gui initialization
@@ -69,8 +89,6 @@ class loginGUI:
         mainwnd.mainloop()
 
 # class for the main window
-
-
 class mainGUI:
     def __init__(self, parent, chatComm, username):
         # tkinter gui initialization
@@ -121,6 +139,7 @@ class mainGUI:
                 "Error", "Can't you find 2 friends to fight the professor with you?")
 
 
+# class for the main game
 class gameGUI:
     def __init__(self, Game, chatComm):
         # main objects initialization
@@ -140,14 +159,14 @@ class gameGUI:
         self.selectedCards = []
         pygame.init()
         self.run()
+    
     # send the game to clients, mod indicates whether game ended
-
     def sendGame(self, mod=0):
         encoded = self.Game.encodeGame(mod)
         self.chatComm.sendMessage(self.Game.p2.name, encoded)
         self.chatComm.sendMessage(self.Game.p3.name, encoded)
+    
     # update current game from received game (if any)
-
     def updateGame(self):
         messages = self.chatComm.getMail()[0]
         if messages != []:
@@ -162,8 +181,8 @@ class gameGUI:
                 info[13] = convertHelper(info[13])
                 if info[0] in ['0', '1', '2']:
                     self.Game = self.decodeGame(info)
+    
     # decode info to a new game object
-
     def decodeGame(self, gameInfo):
         newGame = Game(gameInfo[1], gameInfo[4], gameInfo[7])
         newGame.p1.identity = gameInfo[2]
@@ -201,32 +220,32 @@ class gameGUI:
                     f'Winner is: {newGame.prevPlayer}', 'YOU LOST! BECOME BETTER AT BEING AN EVIL PROFESSOR!')
                 pygame.quit()
         return newGame
+    
     # confirm professor identity
-
     def confirmIdentity(self):
         self.Game.chooseLandlord(self.Game.p1.name)
         self.chosenLandlord = True
         self.Game.assignPlayOrder()
         self.updateScreen()
         self.sendGame()
+    
     # pass professor identity
-
     def passIdentity(self):
         self.Game.makePlay([])
         self.updateScreen()
         self.sendGame()
+    
     # select cards
-
     def selectCard(self, cardVal):
         if cardVal not in self.selectedCards and cardVal in self.Game.p1.cards:
             self.selectedCards.append(cardVal)
+    
     # deselect cards
-
     def deSelect(self, cardVal):
         if cardVal in self.selectedCards and cardVal in self.Game.p1.cards:
             self.selectedCards.remove(cardVal)
+    
     # confirm card play
-
     def confirmCard(self):
         if self.selectedCards != [] and self.Game.isValidPlay(self.selectedCards):
             self.Game.makePlay(self.selectedCards)
@@ -262,15 +281,15 @@ class gameGUI:
             tkinter.Tk().wm_withdraw()
             tkinter.messagebox.showwarning('Warning', 'Invalid play!')
         self.updateScreen()
+    
     # pass the turn
-
     def passCard(self):
         if self.selectedCards == []:
             self.Game.makePlay([])
             self.updateScreen()
             self.sendGame()
+    
     # update screen from current game object
-
     def updateScreen(self):
         # clear everything
         self.objs.clear()
@@ -293,13 +312,13 @@ class gameGUI:
                 self.objs.append(cardObj)
             xStart += 700/cardCnt
         # update played cards
-        xStart = 350
+        xStart = 230
         cardCnt = len(self.Game.prevPlay[1])
         if cardCnt != 0:
             for card in self.Game.prevPlay[1]:
                 prevPlayObj = Card(self.screen, card, xStart, 180, 50, 70)
                 self.objs.append(prevPlayObj)
-                xStart += 200/cardCnt
+                xStart += 350/cardCnt
         # update landlord cards
         if self.chosenLandlord == True:
             xStart = 320
@@ -403,8 +422,8 @@ class gameGUI:
             self.confirmButton = Button(
                 self.screen, 600, 350, 100, 50, 'Be Professor', self.confirmIdentity)
             self.objs.append(self.confirmButton)
+    
     # initialize game GUI
-
     def initGUI(self):
         # set basic variables
         self.clock = pygame.time.Clock()
@@ -418,8 +437,8 @@ class gameGUI:
         self.sendGame()
         # update screen
         self.updateScreen()
+    
     # the main function to be called
-
     def run(self):
         self.initGUI()
         playing = True

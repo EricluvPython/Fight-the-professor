@@ -1,3 +1,15 @@
+'''
+chatComm.py description
+chatComm Class: class for connecting to Prof. Saquib's chat server
+    __init__: ipaddress of the server and port number
+    startConnection: creatse socket object that connects to server
+    login: send login request to server with username and password
+    getFriends: get a list friends to play the game with
+    sendMessage: send a message (game info) to a friend
+    getMail: get received message (game info) and file
+'''
+
+
 import socket
 
 
@@ -128,17 +140,6 @@ class chatComm:
     # send message to others
     def sendMessage(self, friend, message):
         info = "@sendmsg@"+friend+"@"+message
-        size = (5-len(str((len(info)+6))))*'0'+str((len(info)+6))
-        data = "@"+size+info
-        self.socket.send(data.encode('utf-8'))
-        status = self.socket.recv(64).decode()
-        return "ok" in status
-
-    # send file to others
-    def sendFile(self, friend, filename):
-        with open(filename) as f:
-            content = ''.join(f.readlines())
-        info = "@sendfile@"+friend+"@"+filename+"@"+content
         size = (5-len(str((len(info)+6))))*'0'+str((len(info)+6))
         data = "@"+size+info
         self.socket.send(data.encode('utf-8'))

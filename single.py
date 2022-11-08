@@ -1,6 +1,18 @@
-# Single Player GUI
-# loginGUI: class for logging into the server and going to mainGUI
-# gameGUI: class for the visualization of gaming
+'''
+single.py description
+singleGUI Class: class for creating the game window
+    __init__: takes game object and initializes the objects and GUI
+    confirmIdentity: confirm the identity as a professor
+    passIdentity: pass the chance of being a professor
+    selectCard: mark a card object as selected
+    deselectCard: deselect an already selected card
+    confirmCard: confirm a card play
+    passCard: pass a turn
+    updateScreen: update game screen using game object
+    initGUI: intialize pygame GUI and game object
+    run: runs the pygame window and everything that needs to be run
+This file can be directly called to create a single player game window
+'''
 
 import tkinter
 import pygame
@@ -11,6 +23,7 @@ from GameEngine import *
 import time
 
 
+# class for the single player game window
 class singleGUI:
     def __init__(self, Game):
         # initialize main parameters
@@ -36,32 +49,32 @@ class singleGUI:
         self.prevPlayTime = time.time()
         pygame.init()
         self.run()
-    # confirm proofessor identity
 
+    # confirm proofessor identity
     def confirmIdentity(self):
         self.Game.chooseLandlord(self.name)
         self.chosenLandlord = True
         self.Game.assignPlayOrder()
         self.prevPlayTime = time.time()
         self.updateScreen()
-    # pass professor identity
 
+    # pass professor identity
     def passIdentity(self):
         self.Game.makePlay([])
         self.prevPlayTime = time.time()
         self.updateScreen()
-    # select cards
 
+    # select cards
     def selectCard(self, cardVal):
         if cardVal not in self.selectedCards and cardVal in self.player.cards:
             self.selectedCards.append(cardVal)
-    # deselect cards
 
+    # deselect cards
     def deSelect(self, cardVal):
         if cardVal in self.selectedCards and cardVal in self.player.cards:
             self.selectedCards.remove(cardVal)
-    # confirm card play
 
+    # confirm card play
     def confirmCard(self):
         if self.selectedCards != [] and self.Game.isValidPlay(self.selectedCards):
             self.Game.makePlay(self.selectedCards)
@@ -82,15 +95,15 @@ class singleGUI:
         elif self.Game.prevPlay == []:  # show error
             tkinter.Tk().wm_withdraw()
             tkinter.messagebox.showwarning('Warning', 'Invalid play!')
-    # pass turn
 
+    # pass turn
     def passCard(self):
         if self.selectedCards == []:
             self.Game.makePlay([])
             self.prevPlayTime = time.time()
             self.updateScreen()
-    # update screen from game object
 
+    # update screen from game object
     def updateScreen(self):
         # clear everything
         self.objs.clear()
@@ -112,13 +125,13 @@ class singleGUI:
                 self.objs.append(cardObj)
             xStart += 700/cardCnt
         # update played cards
-        xStart = 350
+        xStart = 230
         cardCnt = len(self.Game.prevPlay[1])
         if cardCnt != 0:
             for card in self.Game.prevPlay[1]:
                 prevPlayObj = Card(self.screen, card, xStart, 180, 50, 70)
                 self.objs.append(prevPlayObj)
-                xStart += 200/cardCnt
+                xStart += 350/cardCnt
         # update landlord cards
         if self.chosenLandlord == True:
             xStart = 320
@@ -204,8 +217,8 @@ class singleGUI:
             self.confirmButton = Button(
                 self.screen, 600, 350, 100, 50, 'Be Professor', self.confirmIdentity)
             self.objs.append(self.confirmButton)
-    # initialize game GUI
 
+    # initialize game GUI
     def initGUI(self):
         # set basic variables
         self.clock = pygame.time.Clock()
@@ -219,8 +232,8 @@ class singleGUI:
         self.Game.dealCard()
         # update screen
         self.updateScreen()
-    # main function to be called
 
+    # main function to be called
     def run(self):
         self.initGUI()
         playing = True
@@ -259,7 +272,7 @@ class singleGUI:
         pygame.quit()
 
 
-# start game as client
+# start game as single player mode
 if __name__ == "__main__":
     wnd = tkinter.Tk()
     wnd.geometry("800x600")

@@ -1,6 +1,27 @@
-# Client GUI
-# loginGUI: class for logging into the server and going to mainGUI
-# gameGUI: class for the visualization of gaming
+'''
+client.py description
+loginGUI Class: class for creating the login window
+    __init__: takes the parent tkinter window, sets a login screen
+    verifyLogin: sends login request to server using the user input of username and password
+    decodeGame: takes received game info and decode it into a game object
+    checkForGame: periodically check for incoming game info on server, and start a game window if detected
+gameGUI Class: class for creating the game window
+    __init__: takes game object, chatComm object, and the username for login, initializes the objects and GUI
+    sendGame: takes game status (ongoing, professor won, or student won) and send the game info to the other players
+    updateGame: update the current game object with new game information
+    decodeGame: takes game info and decode it to game object
+    confirmIdentity: confirm the identity as a professor
+    passIdentity: pass the chance of being a professor
+    selectCard: mark a card object as selected
+    deselectCard: deselect an already selected card
+    confirmCard: confirm a card play
+    passCard: pass a turn
+    updateScreen: update game screen using game object
+    initGUI: intialize pygame GUI
+    run: runs the pygame window and everything that needs to be run
+This file can be directly called to create a client window
+'''
+
 
 import tkinter
 import pygame
@@ -12,6 +33,7 @@ import ast
 from utils import convertHelper, anotherConvertHelper
 
 
+# class for the login window
 class loginGUI:
     def __init__(self, parent):
         # tkinter gui initialization
@@ -40,8 +62,8 @@ class loginGUI:
         self.ok = tkinter.Button(
             self.mainFrame, text="OK", command=self.verifyLogin)
         self.ok.pack()
-    # try to login with username and password
 
+    # try to login with username and password
     def verifyLogin(self):
         # get information from entry fields
         self.username = self.nameBox.get()
@@ -60,8 +82,8 @@ class loginGUI:
         else:  # show error, could be less offensive
             tkinter.messagebox.showerror(
                 "Error", "Wrong username or password. You should be smarter than this to fight the professor.")
-    # decode game
 
+    # decode game
     def decodeGame(self, gameInfo):
         newGame = Game(gameInfo[1], gameInfo[4], gameInfo[7])
         newGame.p1.identity = gameInfo[2]
@@ -75,8 +97,8 @@ class loginGUI:
         newGame.playOrder = gameInfo[12]
         newGame.landLordCards = gameInfo[13]
         return newGame
-    # check for game from host and start main game
 
+    # check for game from host and start main game
     def checkForGame(self):
         messages = self.chatComm.getMail()[0]
         for i in messages:
@@ -96,9 +118,8 @@ class loginGUI:
                 return
         self.parent.after(5000, self.checkForGame)
 
+
 # main game GUI
-
-
 class clientGUI:
     def __init__(self, Game, chatComm, name):
         # initialize main parameters
@@ -123,16 +144,16 @@ class clientGUI:
         self.chosenLandlord = False
         pygame.init()
         self.run()
-    # send game to other two players
 
+    # send game to other two players
     def sendGame(self, mod=0):
         encoded = self.Game.encodeGame(mod)
         target = [self.Game.p1.name, self.Game.p2.name, self.Game.p3.name]
         target.remove(self.name)
         for i in target:
             self.chatComm.sendMessage(i, encoded)
-    # update game from received game object
 
+    # update game from received game object
     def updateGame(self):
         messages = self.chatComm.getMail()[0]
         if messages != []:
@@ -151,8 +172,8 @@ class clientGUI:
             self.player = self.Game.p2
         else:
             self.player = self.Game.p3
-    # decode game info into new game object
 
+    # decode game info into new game object
     def decodeGame(self, gameInfo):
         newGame = Game(gameInfo[1], gameInfo[4], gameInfo[7])
         newGame.p1.identity = gameInfo[2]
@@ -194,8 +215,8 @@ class clientGUI:
                     f'Winner is: {newGame.prevPlayer}', 'YOU LOST! BECOME BETTER AT BEING AN EVIL PROFESSOR!')
                 pygame.quit()
         return newGame
-    # confirm proofessor identity
 
+    # confirm proofessor identity
     def confirmIdentity(self):
         self.updateGame()
         self.Game.chooseLandlord(self.name)
@@ -203,24 +224,24 @@ class clientGUI:
         self.Game.assignPlayOrder()
         self.updateScreen()
         self.sendGame()
-    # pass professor identity
 
+    # pass professor identity
     def passIdentity(self):
         self.Game.makePlay([])
         self.updateScreen()
         self.sendGame()
-    # select cards
 
+    # select cards
     def selectCard(self, cardVal):
         if cardVal not in self.selectedCards and cardVal in self.player.cards:
             self.selectedCards.append(cardVal)
-    # deselect cards
 
+    # deselect cards
     def deSelect(self, cardVal):
         if cardVal in self.selectedCards and cardVal in self.player.cards:
             self.selectedCards.remove(cardVal)
-    # confirm card play
 
+    # confirm card play
     def confirmCard(self):
         if self.selectedCards != [] and self.Game.isValidPlay(self.selectedCards):
             self.Game.makePlay(self.selectedCards)
@@ -256,15 +277,15 @@ class clientGUI:
             tkinter.Tk().wm_withdraw()
             tkinter.messagebox.showwarning('Warning', 'Invalid play!')
         self.updateScreen()
-    # pass turn
 
+    # pass turn
     def passCard(self):
         if self.selectedCards == []:
             self.Game.makePlay([])
             self.updateScreen()
             self.sendGame()
-    # update screen from game object
 
+    # update screen from game object
     def updateScreen(self):
         # clear everything
         self.objs.clear()
@@ -287,13 +308,13 @@ class clientGUI:
                 self.objs.append(cardObj)
             xStart += 700/cardCnt
         # update played cards
-        xStart = 350
+        xStart = 230
         cardCnt = len(self.Game.prevPlay[1])
         if cardCnt != 0:
             for card in self.Game.prevPlay[1]:
                 prevPlayObj = Card(self.screen, card, xStart, 180, 50, 70)
                 self.objs.append(prevPlayObj)
-                xStart += 200/cardCnt
+                xStart += 350/cardCnt
         # update landlord cards
         if self.chosenLandlord == True:
             xStart = 320
@@ -397,8 +418,8 @@ class clientGUI:
             self.confirmButton = Button(
                 self.screen, 600, 350, 100, 50, 'Be Professor', self.confirmIdentity)
             self.objs.append(self.confirmButton)
-    # initialize game GUI
 
+    # initialize game GUI
     def initGUI(self):
         # set basic variables
         self.clock = pygame.time.Clock()
@@ -407,8 +428,8 @@ class clientGUI:
         pygame.display.set_caption(self.title)
         # update screen
         self.updateScreen()
-    # main function to be called
 
+    # main function to be called
     def run(self):
         self.updateGame()
         self.initGUI()

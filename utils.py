@@ -1,13 +1,21 @@
+'''
+utils.py description
+    is_contiuous_seq: takes the move and checks if it is a consecutive move *
+    get_move_type: takes the move and returns its type and rank *
+    convertHelper: takes in a stringed list and converts it to list
+    anotherConvertHelper: takes in a nested stringed list and convert it to nested list
+    select: takes in some cards and length and return a list of combinations of cards of the desired length *
+MovesGener Class: class for generating possible moves *
+Note: the modules above that end with * means they are inspired/taken from DouZero https://github.com/kwai/DouZero
+'''
+
+
 import collections
 import ast
 import itertools
 
-# is_continuous_seq and get_move_type classifies the move
-# inspiration from: DouZero https://github.com/kwai/DouZero
 
 # check if move is a continuous sequence
-
-
 def is_continuous_seq(move):
     i = 0
     while i < len(move) - 1:
@@ -16,9 +24,8 @@ def is_continuous_seq(move):
         i += 1
     return True
 
+
 # main function of getting the move type and rank
-
-
 def get_move_type(move):
     move_size = len(move)
     move_dict = collections.Counter(move)
@@ -118,9 +125,8 @@ def get_move_type(move):
 
     return {'type': 15}  # invalid
 
+
 # helper function for converting remote game data
-
-
 def convertHelper(s):
     s = ast.literal_eval(s)
     for i in range(len(s)):
@@ -131,9 +137,8 @@ def convertHelper(s):
                 s[i] = s[i][:-1]+' '+s[i][-1]
     return s
 
+
 # another helper function for converting different game data
-
-
 def anotherConvertHelper(s):
     s = ast.literal_eval(s)
     for i in range(len(s[1])):
@@ -144,9 +149,13 @@ def anotherConvertHelper(s):
                 s[1][i] = s[1][i][:-1]+' '+s[1][i][-1]
     return s
 
+
+# generate combinations of cards
 def select(cards, num):
     return [list(i) for i in itertools.combinations(cards, num)]
 
+
+# class for generating possible moves
 class MovesGener(object):
     """
     This is for generating the possible combinations
@@ -154,8 +163,8 @@ class MovesGener(object):
 
     def __init__(self, cards_list):
         RealCard2EnvCard = {'3': 3, '4': 4, '5': 5, '6': 6, '7': 7,
-                    '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12,
-                    'K': 13, 'A': 14, '2': 17, 'X': 20, 'D': 30}
+                            '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12,
+                            'K': 13, 'A': 14, '2': 17, 'X': 20, 'D': 30}
         self.cards_list = []
         for i in cards_list:
             if i[-1] == '0':
@@ -209,7 +218,8 @@ class MovesGener(object):
                 while steps <= longest:
                     index = 0
                     while steps + index <= longest:
-                        target_moves = sorted(longest_list[index: index + steps] * repeat)
+                        target_moves = sorted(
+                            longest_list[index: index + steps] * repeat)
                         moves.append(target_moves)
                         index += 1
                     steps += 1
@@ -219,7 +229,8 @@ class MovesGener(object):
                     continue
                 index = 0
                 while index + repeat_num <= longest:
-                    target_moves = sorted(longest_list[index: index + repeat_num] * repeat)
+                    target_moves = sorted(
+                        longest_list[index: index + repeat_num] * repeat)
                     moves.append(target_moves)
                     index += 1
 
@@ -347,7 +358,8 @@ class MovesGener(object):
 
         result = list()
         for fc in four_cards:
-            cards_list = [k for k, v in self.cards_dict.items() if k != fc and v>=2]
+            cards_list = [k for k, v in self.cards_dict.items()
+                          if k != fc and v >= 2]
             subcards = select(cards_list, 2)
             for i in subcards:
                 result.append([fc] * 4 + [i[0], i[0], i[1], i[1]])

@@ -1,3 +1,14 @@
+'''
+main.py description
+    goMulti: start the mutliplayer window
+    goHost: start game as host
+    goClient: start game as client
+    goSolo: start game as single player
+    goHome: start the main screen
+this can be directly called to start the main game
+'''
+
+
 import tkinter
 import tkinter.font as font
 import host
@@ -6,6 +17,7 @@ import single
 from GameEngine import Game
 
 
+# go to mutliplayer window
 def goMulti(parent=None):
     if parent:
         parent.destroy()
@@ -29,6 +41,7 @@ def goMulti(parent=None):
     wnd.mainloop()
 
 
+# start game as host
 def goHost(parent=None):
     if parent:
         parent.destroy()
@@ -40,6 +53,7 @@ def goHost(parent=None):
     wnd.mainloop()
 
 
+# start game as client
 def goClient(parent=None):
     if parent:
         parent.destroy()
@@ -51,6 +65,7 @@ def goClient(parent=None):
     wnd.mainloop()
 
 
+# start game as single player
 def goSolo(parent=None):
     if parent:
         parent.destroy()
@@ -63,6 +78,7 @@ def goSolo(parent=None):
     wnd.mainloop()
 
 
+# open the main window
 def goHome(parent=None):
     if parent:
         parent.destroy()
