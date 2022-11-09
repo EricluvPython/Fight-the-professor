@@ -18,6 +18,8 @@ And you've got a chance to be or not to be a professor!\
 \
 If you don't like playing with humans (which is sometimes an excuse for not having friends), you could fight 2 AIs!\
 To play with AI, open and run the ```main.py``` file and select Single Player mode. And have fun!
+## Link to Video
+Link to video: https://youtu.be/n2HR8rVbu1Y
 ## Any issues playing it?
 Please report any bugs and suggestions to me at ```ericgao@cmu.edu```.
 And please enjoy!
