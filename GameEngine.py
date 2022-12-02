@@ -153,7 +153,12 @@ class Game:
         else:
             if pattern1['type'] == pattern2['type'] and\
                     pattern1['rank'] < pattern2['rank']:
-                return True
+                try:
+                    if pattern1['len'] == pattern2['len']:
+                        return True
+                    return False
+                except:
+                    return True
             else:
                 return False
 
